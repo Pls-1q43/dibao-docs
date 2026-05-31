@@ -31,17 +31,27 @@ export default defineConfig({
       ],
       customCss: ["./src/styles/custom.css"],
       sidebar: [
+        { slug: "index" },
+        { slug: "quick-install" },
+        { slug: "providers" },
+        { slug: "backup-upgrade" },
         {
-          label: "中文",
-          autogenerate: { directory: "zh", collapsed: false }
+          label: "插件",
+          translations: {
+            "en-US": "Plugins",
+            "ja-JP": "プラグイン"
+          },
+          items: [{ slug: "plugins/installation" }, { slug: "plugins/development" }]
         },
+        { slug: "license" },
+        { slug: "release-notes" },
         {
-          label: "English",
-          autogenerate: { directory: "en", collapsed: false }
-        },
-        {
-          label: "日本語",
-          autogenerate: { directory: "ja", collapsed: false }
+          label: "开发者",
+          translations: {
+            "en-US": "Developers",
+            "ja-JP": "開発者"
+          },
+          items: [{ slug: "developers" }, { slug: "reference" }]
         }
       ],
       editLink: {
