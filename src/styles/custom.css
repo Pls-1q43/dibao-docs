@@ -1,0 +1,40 @@
+:root {
+  --sl-color-accent-low: #d9eee5;
+  --sl-color-accent: #2f6f5e;
+  --sl-color-accent-high: #163d35;
+  --sl-color-white: #fbf8f1;
+  --sl-color-gray-1: #efe8dc;
+  --sl-color-gray-2: #d8cec0;
+  --sl-color-gray-3: #a89987;
+  --sl-color-gray-4: #756b5f;
+  --sl-color-gray-5: #4d453c;
+  --sl-color-gray-6: #322d28;
+  --sl-color-black: #171410;
+  --sl-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+:root[data-theme="light"] {
+  --sl-color-white: #171410;
+  --sl-color-black: #fffaf2;
+  --sl-color-gray-1: #2b261f;
+  --sl-color-gray-2: #4a4238;
+  --sl-color-gray-3: #766b5d;
+  --sl-color-gray-4: #aa9c89;
+  --sl-color-gray-5: #d9cfbf;
+  --sl-color-gray-6: #f3eadc;
+  --sl-color-gray-7: #fffaf2;
+}
+
+.site-title {
+  font-weight: 780;
+  letter-spacing: 0;
+}
+
+.sl-markdown-content a {
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.sl-markdown-content table {
+  font-size: 0.94rem;
+}
