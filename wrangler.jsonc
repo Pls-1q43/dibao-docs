@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "dibao-docs",
+  "account_id": "f8793e725ffbd27523914985c1b778a4",
   "compatibility_date": "2026-05-31",
   "assets": {
     "directory": "./dist",
