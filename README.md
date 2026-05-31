@@ -28,6 +28,7 @@ Production deploys should be connected to Cloudflare Workers GitHub integration:
 - Repository: `Pls-1q43/dibao-docs`
 - Production branch: `main`
 - Build command: `npm ci && npm run build`
+- Deploy command: `npx wrangler deploy`
 - Output directory: `dist`
 - Custom domain: `docs.dibao.app`
 
