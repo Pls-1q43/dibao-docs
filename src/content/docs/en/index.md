@@ -11,6 +11,7 @@ Dibao is a self-hosted, fair-code RSS recommendation reader for people who still
 - [Recommended Providers](providers/): choose Ollama, SiliconFlow, Gemini, or another OpenAI-compatible embedding provider.
 - [Backup And Upgrade](backup-upgrade/): back up `./data`, upgrade the Docker image, and verify the instance.
 - [Plugin Installation](plugins/installation/): upload third-party `.dibao-plugin` files and review permissions before enabling them.
+- [Official Webhook Plugin](plugins/webhook/): deliver article, refresh, ranking, and Daily Brief events to external HTTP endpoints in Dibao `0.2.x`.
 - [License FAQ](license/): understand BUSL-1.1, fair-code use, Change Dates, and commercial boundaries.
 
 ## Where Dibao Runs

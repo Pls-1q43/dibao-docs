@@ -11,6 +11,7 @@ description: 邸报 Dibao 的安装、配置、插件、备份升级与开发者
 - [推荐 Provider](providers/)：选择 Ollama、SiliconFlow、Gemini 或其他 OpenAI-compatible embedding provider。
 - [备份与升级](backup-upgrade/)：备份 `./data`，升级 Docker 镜像，检查健康状态。
 - [插件安装](plugins/installation/)：上传第三方 `.dibao-plugin` 文件，并在启用前检查权限。
+- [Webhook 官方插件](plugins/webhook/)：在 Dibao `0.2.x` 中把文章、刷新、推荐和 Daily Brief 事件投递到外部 HTTP endpoint。
 - [许可证 FAQ](license/)：了解 BUSL-1.1、fair-code、Change Date 和商业授权边界。
 
 ## 运行边界

@@ -5,6 +5,12 @@ description: Install, update, and preserve Dibao third-party plugins.
 
 Third-party plugins run code on your self-hosted server. Only install plugins from trusted sources and review the plugin name, publisher, capabilities, and compatibility before enabling them.
 
+## Official Plugins And Third-Party Plugins
+
+Dibao `0.2.x` can ship official plugins inside the official Docker image, including [Webhook](webhook/). Official plugins do not require uploading a `.dibao-plugin` file and cannot be uninstalled like third-party plugins. Open the `Plugins` tab in settings, find the official plugin, and enable it.
+
+The rest of this page applies to third-party plugins. For official plugins such as Webhook, use the plugin-specific documentation.
+
 ## Recommended Flow: Upload A Plugin File
 
 1. Download the `.dibao-plugin` file from the plugin developer's release page.

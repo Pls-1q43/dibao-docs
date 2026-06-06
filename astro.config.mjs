@@ -41,7 +41,11 @@ export default defineConfig({
             "en-US": "Plugins",
             "ja-JP": "プラグイン"
           },
-          items: [{ slug: "plugins/installation" }, { slug: "plugins/development" }]
+          items: [
+            { slug: "plugins/installation" },
+            { slug: "plugins/webhook" },
+            { slug: "plugins/development" }
+          ]
         },
         { slug: "license" },
         { slug: "release-notes" },
