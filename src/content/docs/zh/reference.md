@@ -27,4 +27,4 @@ description: Dibao 公开参考文档索引。
 
 - License FAQ：BUSL-1.1 与 Change Date。
 - Release process：正式发布、hotfix 和 Docker 镜像规则。
-- Release notes：v0.1.0、v0.1.1。
+- Release notes：v0.2.x 当前开发线、v0.1.1、v0.1.0。

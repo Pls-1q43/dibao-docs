@@ -1,7 +1,18 @@
 ---
 title: リリースノート
-description: Dibao v0.1.1 と v0.1.0 のリリース概要。
+description: Dibao v0.2.x、v0.1.1、v0.1.0 のリリース概要。
 ---
+
+## v0.2.x 現在の開発ライン
+
+`0.2` はプラグインプラットフォームと次期バージョンの開発ラインです。現在の branch の主な内容：
+
+- プラグインプラットフォームの強化：server plugin は独立 Node host 子プロセスで動作し、JSON-RPC Host API 経由で core capabilities を呼び出します。
+- プラグイン UI の強化：plugin page は sandbox iframe で動作し、Dibao API を直接 `fetch` せず `postMessage` bridge を使います。
+- third-party install policy：user-installed plugins は既定で無効で、server install には Ed25519 signature と trusted keys が必要です。
+- plugin capabilities：`secrets`、`deliveries`、manifest migrations、Stable/Beta API tiers、plugin health metadata。
+- 公式プラグイン：Daily Brief と Webhook は image に同梱され、Plugins page から有効化できます。
+- runtime safety：background jobs、plugin hooks、diagnostics、SQLite maintenance paths により厳格な runtime guardrails が入っています。
 
 ## v0.1.1
 

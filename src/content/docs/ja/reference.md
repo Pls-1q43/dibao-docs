@@ -27,4 +27,4 @@ description: Dibao の公開リファレンス索引。
 
 - License FAQ：BUSL-1.1 と Change Dates。
 - Release process：正式リリース、hotfix、Docker image rules。
-- Release notes：v0.1.0 と v0.1.1。
+- Release notes：v0.2.x 現在の開発ライン、v0.1.1、v0.1.0。

@@ -1,7 +1,18 @@
 ---
 title: 发布说明
-description: Dibao v0.1.1 与 v0.1.0 发布说明摘要。
+description: Dibao v0.2.x、v0.1.1 与 v0.1.0 发布说明摘要。
 ---
+
+## v0.2.x 当前开发线
+
+`0.2` 是插件平台和下一版本功能开发线。当前分支重点包括：
+
+- 插件平台加固：服务端插件运行在独立 Node host 子进程中，通过 JSON-RPC Host API 调用核心能力。
+- 插件 UI 加固：插件页面运行在 sandboxed iframe 中，通过 `postMessage` bridge 访问宿主，不直接 `fetch` Dibao API。
+- 第三方插件安装策略：用户安装默认关闭，需要显式启用；第三方包安装要求 Ed25519 签名和 trusted key。
+- 插件能力扩展：`secrets`、`deliveries`、manifest migrations、Stable/Beta API 分层和插件健康信息。
+- 官方插件：Daily Brief 和 Webhook 随镜像分发，可在插件页启用。
+- 性能与安全：后台任务、插件 Hook、诊断接口和 SQLite 维护路径增加运行时保护。
 
 ## v0.1.1
 

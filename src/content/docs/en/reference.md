@@ -27,4 +27,4 @@ This section carries public reference material migrated from the main project's 
 
 - License FAQ: BUSL-1.1 and Change Dates.
 - Release process: formal releases, hotfixes, and Docker image rules.
-- Release notes: v0.1.0 and v0.1.1.
+- Release notes: v0.2.x current development line, v0.1.1, and v0.1.0.

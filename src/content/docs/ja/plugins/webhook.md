@@ -35,7 +35,7 @@ n8n、Make、Zapier、自作スクリプト、チャット bot、監視システ
 | POST Body テンプレート | `POST` リクエストで送信する JSON body です。 |
 | 全文を送信 | 記事 snapshot に全文を含めます。信頼できる endpoint にだけ使ってください。 |
 
-テスト送信はサンプルイベントで即時に 1 件の送信を作成し、最大 1 回だけ試行します。実イベントの送信はデフォルトで最大 5 回試行します。
+テスト送信はサンプルイベントで 1 件の送信を作成し、その送信をすぐに flush します。endpoint、headers、body が正しいか確認する用途に向いています。テスト送信は最大 1 回だけ試行します。実イベントの送信はデフォルトで最大 5 回試行します。
 
 ## 対応イベント
 
@@ -72,6 +72,24 @@ Webhook はイベントごとに context object を作ります。よく使う p
 | `feed` | Feed snapshot。記事がない場合は `event.feedId` だけの場合があります。 |
 | `generatedAt` | Webhook 送信を生成した timestamp。 |
 | `test` | テスト送信では `true`。 |
+
+`article.actionRecorded` の `event.action` でよく使う値：
+
+```text
+impression
+open
+mark_read
+mark_unread
+favorite
+unfavorite
+like
+unlike
+read_later
+remove_read_later
+hide
+not_interested
+read_progress
+```
 
 テンプレートは `{{path.to.value}}` の形で書きます。文字列の一部として object を埋め込むと JSON 文字列になります。フィールド全体が `"{{article}}"` のような単一テンプレートの場合、object 値のまま保持されるため JSON body で便利です。
 
@@ -135,7 +153,7 @@ Dibao はリクエスト送信時だけ secret を Header に注入します。A
 - `failed`：最終的に失敗しました。
 - `cancelled`：キャンセルされました。
 
-`2xx` は成功です。`4xx` は通常、設定または認証の問題なので最終失敗として扱われます。`5xx` とネットワークエラーは background job によりリトライされます。実イベントは最大 5 回、テスト送信は 1 回だけ試行します。
+`2xx` は成功です。`4xx` は通常、設定または認証の問題なので最終失敗として扱われます。`5xx` とネットワークエラーは background job によりリトライされます。実イベントは最大 5 回、テスト送信はすぐに flush され 1 回だけ試行します。
 
 Webhook は可能な場合、イベント内の安定した値から idempotency key を作り、同じルールと同じイベントの重複送信を減らします。
 

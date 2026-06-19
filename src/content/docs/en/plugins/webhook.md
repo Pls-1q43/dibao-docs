@@ -35,7 +35,7 @@ A rule has these parts:
 | POST Body template | JSON body sent for `POST` requests. |
 | Include content | Adds full article content to the article snapshot. Use only for trusted endpoints. |
 
-Test delivery creates one delivery immediately with a sample event and only tries once. Real event delivery uses up to 5 attempts by default.
+Test delivery creates one delivery with a sample event and immediately flushes that delivery, which is useful for checking the target endpoint, headers, and body. Test delivery tries once; real event delivery uses up to 5 attempts by default.
 
 ## Supported Events
 
@@ -72,6 +72,24 @@ Webhook creates a context object for each event. Useful paths:
 | `feed` | Feed snapshot; without an article it may only include `event.feedId`. |
 | `generatedAt` | Timestamp when the webhook delivery was generated. |
 | `test` | `true` for test delivery. |
+
+Common `event.action` values for `article.actionRecorded`:
+
+```text
+impression
+open
+mark_read
+mark_unread
+favorite
+unfavorite
+like
+unlike
+read_later
+remove_read_later
+hide
+not_interested
+read_progress
+```
 
 Use `{{path.to.value}}` in templates. If you embed an object inside a larger string, it becomes a JSON string. If the entire field is exactly one template, for example `"{{article}}"`, the object value is preserved, which is useful in JSON bodies.
 
@@ -135,7 +153,7 @@ Every matching rule creates a delivery record. The latest 50 deliveries are show
 - `failed`: final failure.
 - `cancelled`: cancelled.
 
-`2xx` is success. `4xx` usually means a configuration or authentication problem and is treated as final failure. `5xx` and network errors can be retried by the background job. Real event delivery tries up to 5 times; test delivery tries once.
+`2xx` is success. `4xx` usually means a configuration or authentication problem and is treated as final failure. `5xx` and network errors can be retried by the background job. Real event delivery tries up to 5 times; test delivery flushes immediately and tries once.
 
 Webhook uses stable event fields when possible to create an idempotency key, reducing duplicate deliveries for the same rule and event.
 

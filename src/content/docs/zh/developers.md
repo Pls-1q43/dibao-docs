@@ -10,6 +10,9 @@ description: Dibao 开发者入口、仓库结构与公开合约。
 - `apps/web`：前端 Web App。
 - `apps/server`：API、RSS 抓取、后台任务和推荐维护。
 - `packages/db`：数据库类型、迁移和 shared data contracts。
+- `packages/plugin-sdk`：插件 manifest、能力、事件、签名和 package 校验工具。
+- `packages/plugin-cli`：第三方插件模板、校验、打包和签名命令。
+- `plugins/official`：随镜像分发的官方插件，例如 Daily Brief 和 Webhook。
 - `docs`：公开产品、工程和开发者参考文档。
 
 本地计划、执行记录、临时验证证据和机器特定说明不属于公开 docs，应保留在仓库外或被忽略的本地目录。
@@ -19,6 +22,7 @@ description: Dibao 开发者入口、仓库结构与公开合约。
 - API 路由与请求/响应结构按 API contract 演进。
 - 数据库结构按 schema migration 和 database schema 文档演进。
 - 插件 manifest、capability、Hook 和 UI slot 需要保持文档化。
+- 插件 Stable/Beta API、签名 trusted key、iframe bridge 和持久化路径需要随 `0.2` 实现同步。
 - 推荐算法文档用于解释产品行为，不应被 UI 文案夸大为未实现的能力。
 
 ## 兼容性
