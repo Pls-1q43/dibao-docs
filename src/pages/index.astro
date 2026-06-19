@@ -1,0 +1,238 @@
+---
+const languages = [
+  {
+    code: "zh",
+    label: "中文",
+    title: "进入中文文档",
+    description: "默认维护语言，包含最新安装、插件、Provider、备份升级和开发者文档。",
+    href: "/zh/"
+  },
+  {
+    code: "en",
+    label: "English",
+    title: "Open English docs",
+    description: "Installation, providers, plugins, backup, release notes, and developer references.",
+    href: "/en/"
+  },
+  {
+    code: "ja",
+    label: "日本語",
+    title: "日本語ドキュメントへ",
+    description: "インストール、Provider、プラグイン、バックアップ、開発者向け資料。",
+    href: "/ja/"
+  }
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dibao Docs | 邸报文档</title>
+    <meta
+      name="description"
+      content="Dibao documentation language entry. 选择邸报文档语言。"
+    />
+    <link rel="canonical" href="https://docs.dibao.app/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://docs.dibao.app/zh/" />
+    <link rel="alternate" hreflang="en-US" href="https://docs.dibao.app/en/" />
+    <link rel="alternate" hreflang="ja-JP" href="https://docs.dibao.app/ja/" />
+    <link rel="alternate" hreflang="x-default" href="https://docs.dibao.app/zh/" />
+    <script is:inline>
+      (() => {
+        const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+        const normalized = languages.filter(Boolean).map((language) => language.toLowerCase());
+        const target = normalized.some((language) => language.startsWith("ja"))
+          ? "/ja/"
+          : normalized.some((language) => language.startsWith("en"))
+            ? "/en/"
+            : "/zh/";
+        window.location.replace(target);
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --text: #171410;
+        --muted: #655b4f;
+        --line: #ded2c0;
+        --surface: #fffaf2;
+        --surface-strong: #f4eadb;
+        --accent: #2f6f5e;
+        --accent-dark: #163d35;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: var(--text);
+        background: var(--surface);
+      }
+
+      main {
+        width: min(960px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: clamp(48px, 9vh, 96px) 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 44px;
+        color: var(--accent-dark);
+        font-weight: 780;
+        letter-spacing: 0;
+      }
+
+      .mark {
+        display: inline-grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-strong);
+        color: var(--accent);
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(2.25rem, 7vw, 5rem);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 700px;
+        margin: 22px 0 34px;
+        color: var(--muted);
+        font-size: clamp(1.02rem, 2.2vw, 1.22rem);
+        line-height: 1.75;
+      }
+
+      .hint {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        margin-bottom: 26px;
+        padding: 6px 11px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--muted);
+        background: #fffdf8;
+        font-size: 0.94rem;
+      }
+
+      .language-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .language-link {
+        display: block;
+        min-height: 164px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: inherit;
+        text-decoration: none;
+        background: #fffdf8;
+      }
+
+      .language-link:hover,
+      .language-link:focus-visible {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.16);
+      }
+
+      .language-label {
+        color: var(--accent);
+        font-size: 0.88rem;
+        font-weight: 760;
+      }
+
+      .language-title {
+        display: block;
+        margin-top: 18px;
+        font-size: 1.2rem;
+        font-weight: 760;
+      }
+
+      .language-description {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 0.96rem;
+        line-height: 1.62;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          width: min(100% - 28px, 560px);
+          padding-block: 34px;
+        }
+
+        .brand {
+          margin-bottom: 34px;
+        }
+
+        .language-list {
+          grid-template-columns: 1fr;
+        }
+
+        .language-link {
+          min-height: 132px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="brand" href="/zh/" aria-label="进入邸报中文文档">
+        <span class="mark" aria-hidden="true">D</span>
+        <span>Dibao Docs</span>
+      </a>
+
+      <h1>选择邸报文档语言</h1>
+      <p class="lede">
+        正在根据浏览器语言自动进入对应文档。若没有自动跳转，请从下方选择语言。
+      </p>
+
+      <noscript>
+        <p class="hint">当前浏览器未启用 JavaScript，请手动选择语言。</p>
+      </noscript>
+
+      <ul class="language-list" aria-label="文档语言">
+        {
+          languages.map((language) => (
+            <li>
+              <a class="language-link" href={language.href} hreflang={language.code}>
+                <span class="language-label">{language.label}</span>
+                <span class="language-title">{language.title}</span>
+                <p class="language-description">{language.description}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </body>
+</html>
