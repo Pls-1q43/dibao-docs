@@ -13,6 +13,7 @@ Dibao は、source-available / fair-code のセルフホスト RSS 推薦リー�
 - [推奨 Provider](providers/)：Ollama、SiliconFlow、Gemini、または OpenAI-compatible embedding provider を選びます。
 - [バックアップとアップグレード](backup-upgrade/)：`./data` をバックアップし、Docker image を更新し、health と推薦在庫を確認します。
 - [プラグインインストール](plugins/installation/)：third-party `.dibao-plugin` を install し、有効化前に source、signature、capabilities を確認します。
+- [公式 Daily Brief プラグイン](plugins/daily-brief/)：過去 24 時間の personalized recommendations から topic ごとの daily digest を生成します。
 - [公式 Webhook プラグイン](plugins/webhook/)：記事、更新、推薦、Daily Brief のイベントを外部 HTTP endpoint に送信します。
 - [公式 Full Content Selectors プラグイン](plugins/full-content/)：0.3 の full-content fetching と selector-based extraction を有効化します。
 - [ライセンス FAQ](license/)：BUSL-1.1、fair-code、Change Date、商用利用の境界を確認します。

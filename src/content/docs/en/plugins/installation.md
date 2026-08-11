@@ -9,7 +9,7 @@ This guide is for Dibao administrators installing third-party plugins. In 0.3, s
 
 ## Official And Third-Party Plugins
 
-Dibao 0.3.1 bundles Daily Brief, Webhook, and Full Content Selectors in the official Docker image. Official plugins do not require uploading a .dibao-plugin file and cannot be uninstalled like third-party plugins. Open Settings -> Plugins, find the official plugin, and enable it. The install flow below applies to third-party plugins.
+Dibao 0.3.1 bundles [Daily Brief](/en/plugins/daily-brief/), [Webhook](/en/plugins/webhook/), and [Full Content Selectors](/en/plugins/full-content/) in the official Docker image. Official plugins do not require uploading a .dibao-plugin file and cannot be uninstalled like third-party plugins. Open Settings -> Plugins, find the official plugin, and enable it. The install flow below applies to third-party plugins.
 
 ## Before Installing
 

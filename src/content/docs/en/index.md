@@ -13,6 +13,7 @@ The current recommended release is `v0.3.1`. It carries the recommendation-algor
 - [Recommended Providers](providers/): choose Ollama, SiliconFlow, Gemini, or another OpenAI-compatible embedding provider.
 - [Backup And Upgrade](backup-upgrade/): back up `./data`, upgrade the Docker image, and verify health and recommendation inventory.
 - [Plugin Installation](plugins/installation/): install third-party `.dibao-plugin` files and review source, signature, and capabilities before enabling them.
+- [Official Daily Brief Plugin](plugins/daily-brief/): generate a topic-grouped daily digest from personalized recommendations in the past 24 hours.
 - [Official Webhook Plugin](plugins/webhook/): deliver article, refresh, ranking, and Daily Brief events to external HTTP endpoints.
 - [Official Full Content Selectors Plugin](plugins/full-content/): enable 0.3 full-content fetching and selector-based extraction.
 - [License FAQ](license/): understand BUSL-1.1, fair-code use, Change Dates, and commercial boundaries.

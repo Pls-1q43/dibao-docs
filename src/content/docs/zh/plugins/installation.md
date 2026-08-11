@@ -9,7 +9,7 @@ Last updated: 2026-08-11
 
 ## 官方插件与第三方插件
 
-Dibao 0.3.1 随官方 Docker 镜像携带 Daily Brief、Webhook 和 Full Content Selectors。官方插件不需要上传 .dibao-plugin，也不能像第三方插件一样卸载；打开设置页的 插件 Tab，找到官方插件并启用即可。本页后续安装步骤只适用于第三方插件。
+Dibao 0.3.1 随官方 Docker 镜像携带 [Daily Brief](/zh/plugins/daily-brief/)、[Webhook](/zh/plugins/webhook/) 和 [Full Content Selectors](/zh/plugins/full-content/)。官方插件不需要上传 .dibao-plugin，也不能像第三方插件一样卸载；打开设置页的 插件 Tab，找到官方插件并启用即可。本页后续安装步骤只适用于第三方插件。
 
 ## 安装前检查
 

@@ -9,7 +9,7 @@ Last updated: 2026-08-11
 
 ## 公式プラグインとサードパーティプラグイン
 
-Dibao 0.3.1 には Daily Brief、Webhook、Full Content Selectors が公式 Docker image に同梱されています。公式プラグインは .dibao-plugin の upload が不要で、サードパーティプラグインのように uninstall できません。Settings -> Plugins で公式プラグインを探して有効化してください。以下の install 手順はサードパーティプラグイン向けです。
+Dibao 0.3.1 には [Daily Brief](/ja/plugins/daily-brief/)、[Webhook](/ja/plugins/webhook/)、[Full Content Selectors](/ja/plugins/full-content/) が公式 Docker image に同梱されています。公式プラグインは .dibao-plugin の upload が不要で、サードパーティプラグインのように uninstall できません。Settings -> Plugins で公式プラグインを探して有効化してください。以下の install 手順はサードパーティプラグイン向けです。
 
 ## インストール前の確認
 

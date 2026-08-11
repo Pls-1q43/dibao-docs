@@ -13,6 +13,7 @@ description: Dibao v0.3.1 的安装、配置、插件、备份升级与开发者
 - [推荐 Provider](providers/)：选择 Ollama、SiliconFlow、Gemini 或其他 OpenAI-compatible embedding provider。
 - [备份与升级](backup-upgrade/)：备份 `./data`，升级 Docker 镜像，检查健康状态与推荐库存。
 - [插件安装](plugins/installation/)：安装第三方 `.dibao-plugin`，并在启用前检查来源、签名和 capabilities。
+- [每日简报官方插件](plugins/daily-brief/)：每天从过去 24 小时的个性化推荐中生成按主题分组的简报。
 - [Webhook 官方插件](plugins/webhook/)：把文章、刷新、推荐和 Daily Brief 事件投递到外部 HTTP endpoint。
 - [全文选择器官方插件](plugins/full-content/)：启用 0.3 的全文抓取与 selector-based extractor。
 - [许可证 FAQ](license/)：了解 BUSL-1.1、fair-code、Change Date 和商业授权边界。
