@@ -44,6 +44,7 @@ export default defineConfig({
           items: [
             { slug: "plugins/installation" },
             { slug: "plugins/webhook" },
+            { slug: "plugins/full-content" },
             { slug: "plugins/development" }
           ]
         },

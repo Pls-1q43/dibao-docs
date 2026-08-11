@@ -1,18 +1,18 @@
 ---
 title: Backup And Upgrade
-description: Back up the Dibao data directory and upgrade the Docker image.
+description: Back up Dibao data and upgrade to v0.3.1.
 ---
 
-The default Compose file maps container `/data` to local `./data`:
+The default Compose setup maps container `/data` to local `./data`:
 
 ```text
 ./data:/data
 ./data/dibao.sqlite
 ```
 
-## Backup
+Before upgrading, migrating, or trying new plugins, back up the whole `./data` directory rather than only the SQLite file. Plugin packages, plugin data, and future file-backed state also live there.
 
-Before upgrading or moving the instance, stop the container and archive the data directory:
+## Backup
 
 ```bash
 docker compose stop
@@ -20,9 +20,15 @@ tar czf dibao-data-backup.tgz -C data .
 docker compose up -d
 ```
 
-Back up the whole `./data` directory, not just the SQLite file. Plugin packages, plugin data, and future file-based state also live there.
+## Upgrade To v0.3.1
 
-## Upgrade
+Set the image in `compose.yaml`:
+
+```yaml
+image: ghcr.io/pls-1q43/dibao:v0.3.1
+```
+
+Then run:
 
 ```bash
 docker compose pull
@@ -30,7 +36,19 @@ docker compose up -d
 docker compose ps
 ```
 
-After upgrading, check the Settings page for version, feed refresh state, recommendation maintenance state, and plugin compatibility.
+After upgrading, open:
+
+```text
+http://localhost:8080/api/system/health
+```
+
+The response should include `ok: true` and `version: "0.3.1"`. If the recommendation inventory indicator says sorting is in progress, wait for background jobs to replenish sorted inventory.
+
+## Migration Impact
+
+- From `v0.3.0` to `v0.3.1`: no new core SQLite migrations and no embedding recomputation. Bundled Daily Brief, Webhook, and Full Content Selectors plugins update to `0.1.1`.
+- Directly from `v0.2.1` to `v0.3.1`: adds `026_recommendation_v3_memory.sql`, creating `user_representation_snapshots`, `recommendation_exposures`, `exploration_attempts`, and exploration fields on `article_rank_scores`.
+- The 0.3 upgrade does not require embedding recomputation. New recommendation memory and exposure data accumulate after upgrade.
 
 ## Restore
 
@@ -42,4 +60,4 @@ tar xzf dibao-data-backup.tgz -C data
 docker compose up -d
 ```
 
-Confirm the instance is healthy before deleting the old directory.
+Do not start an older version against a database already migrated to 0.3.x. Restore the pre-upgrade backup first, then start the previous image.

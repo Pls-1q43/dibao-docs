@@ -1,24 +1,23 @@
 ---
 title: Plugin Development
-description: Dibao 0.2 plugin manifest, capabilities, Host API, iframe bridge, packaging, signing, and release checks.
+description: Dibao 0.3 plugin manifest, localization, full-content extractors, Host API, iframe bridge, packaging, signing, and release checks.
 ---
 
-This guide is for third-party plugin developers. Dibao `0.2.x` is an ecosystem-platform release for trusted administrator-installed plugins. Plugins can extend server tasks, hooks, settings pages, and web UI, but they are trusted local code. Dibao does not claim to safely run arbitrary malicious code.
+Last updated: 2026-08-11
 
-Official plugins such as [Webhook](webhook/) and Daily Brief use the same manifest, capability, contribution, and lifecycle model. Third-party plugins additionally go through signing, trusted keys, installation, and enablement.
+This guide is for third-party plugin developers. Dibao 0.3 is an ecosystem-platform release for trusted administrator-installed plugins. Plugins can extend server tasks, hooks, settings pages, web UI, and full-content extractors, but they are trusted local code. Dibao 0.3 does not claim to safely run arbitrary malicious code.
 
 ## Security Model
 
 - Server plugins run in an isolated Node host child process and call Dibao through a JSON-RPC Host API.
 - The main process never passes `db`, `process`, Fastify `request/reply`, or internal services to plugins.
 - Web plugins run in `sandbox="allow-scripts allow-forms"` iframes without `allow-same-origin`.
-- Plugin pages must not call Dibao APIs with direct `fetch`; use the `postMessage` bridge.
-- Plugin HTML receives a restrictive CSP: no direct `fetch`, no form submit, and no default external resources. Inline scripts/styles and `/api/plugins/ui.css` are allowed.
-- Third-party plugins stay disabled after installation. Before enabling, review source, signature trust, capabilities, Stable/Beta API usage, and server-code risk.
+- Plugin HTML receives a restrictive CSP: no direct `fetch`, no form submit, no default external resources; inline scripts/styles and `/api/plugins/ui.css` are allowed.
+- Third-party upload remains available, but plugins are disabled by default. Review source, signature trust, capabilities, Stable/Beta API usage, and server-code risk before enabling.
 
 ## Manifest v1
 
-`.dibao-plugin` packages are JSON with top-level `manifest`, `files`, and optional `updateUrl` and `signature`.
+`.dibao-plugin` packages are JSON:
 
 ```json
 {
@@ -28,32 +27,16 @@ Official plugins such as [Webhook](webhook/) and Daily Brief use the same manife
     "name": "Reader Tools",
     "version": "0.1.0",
     "publisher": "Example",
-    "dibao": { "minVersion": "0.2.0", "maxVersion": "<0.3.0" },
+    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.4.0" },
     "entry": { "server": "server/index.mjs", "web": "web/index.html" },
     "capabilities": ["settings:plugin", "files:plugin-data", "jobs:write"],
     "migrations": [
       { "version": "001", "name": "create_notes", "path": "migrations/001_create_notes.sql" }
     ],
     "contributes": {
-      "settingsTabs": [
-        {
-          "id": "settings",
-          "title": "Reader Tools",
-          "slot": "settings.tabs",
-          "route": "settings",
-          "order": 90,
-          "icon": "settings"
-        }
-      ],
+      "settingsTabs": [{ "id": "settings", "title": "Reader Tools", "slot": "settings.tabs", "route": "settings" }],
       "hooks": ["maintenance.tick"],
-      "tasks": [
-        {
-          "id": "readerTools.refresh",
-          "kind": "background",
-          "schedule": "manual",
-          "defaultEnabled": false
-        }
-      ]
+      "tasks": [{ "id": "readerTools.refresh", "kind": "background", "schedule": "manual" }]
     }
   },
   "files": {
@@ -64,11 +47,34 @@ Official plugins such as [Webhook](webhook/) and Daily Brief use the same manife
 }
 ```
 
-Use reverse-domain IDs or another stable namespace. Use a bounded compatibility range such as `<0.3.0` so future breaking APIs do not auto-enable the plugin.
+Use reverse-domain IDs and a bounded compatibility range such as `<0.4.0`.
+
+### Plugin Localization
+
+Starting in 0.3, user-facing manifest strings may stay as plain strings or use locale maps:
+
+```json
+{
+  "name": { "zh-CN": "阅读工具", "en-US": "Reader Tools", "ja-JP": "リーダーツール" },
+  "publisher": { "zh-CN": "示例", "en-US": "Example", "ja-JP": "Example" },
+  "contributes": {
+    "settingsTabs": [
+      {
+        "id": "settings",
+        "title": { "zh-CN": "阅读工具", "en-US": "Reader Tools", "ja-JP": "リーダーツール" },
+        "slot": "settings.tabs",
+        "route": "settings"
+      }
+    ]
+  }
+}
+```
+
+Dibao resolves manifest strings against the current UI locale with this fallback chain: exact locale, language code, `zh-CN`, `zh`, then the first available value. Web plugin iframes receive a `?locale=zh-CN|en-US|ja-JP` query parameter and can also call the bridge method `getLocale`. Server plugins receive the startup locale as `ctx.locale`; use `await ctx.i18n.getLocale()` when an already-running plugin needs to observe language changes.
 
 ## Capabilities
 
-Dibao `0.2.x` supports:
+Supported capabilities:
 
 ```text
 articles:read
@@ -91,80 +97,32 @@ files:plugin-data
 telemetry:emit
 ```
 
-Declare only what you need. `network:outbound` is protected by SSRF checks, size limits, redirect limits, and timeouts. Sensitive headers should use `secrets:plugin` and delivery `secretHeaders`, not plain settings or static headers.
-
-## Contributions
-
-The `contributes` object decides where the plugin appears in UI and runtime:
-
-- `settingsTabs`: plugin configuration tabs in settings; common slot: `settings.tabs`.
-- `tabs` / `routes`: main app navigation or plugin page entries, such as Daily Brief.
-- `actions`: article-list or toolbar action buttons.
-- `setupSteps`: optional first-install plugin steps.
-- `hooks`: Dibao events the plugin subscribes to.
-- `events`: events the plugin declares it can emit.
-- `tasks`: foreground or background tasks with `manual`, `interval`, `daily`, or `weekly` schedules.
-
-Common UI slots:
-
-```text
-app.main.nav.items
-app.main.tabs
-article.list.item.actions.end
-article.list.toolbar.end
-article.reader.bottomSheet.actions
-settings.tabs
-algorithm.jobs.actions
-```
-
-## Events
-
-Plugins can subscribe to or declare:
-
-```text
-article.created
-article.updated
-article.actionRecorded
-feed.refreshCompleted
-ranking.afterRanked
-settings.afterUpdated
-plugin.taskSucceeded
-plugin.taskFailed
-maintenance.tick
-dailyBrief.generated
-```
-
-Hooks have timeout protection. Avoid heavy network fan-out inside hot hooks; enqueue `deliveries` for outbound HTTP work.
+Declare only what you need. `network:outbound` is protected by SSRF checks, size limits, redirect limits, and timeouts. Sensitive headers should reference plugin secrets through delivery `secretHeaders`.
 
 ## API Stability
 
 Stable:
 
-- `manifest.v1`
-- `lifecycle.installEnableDisableUpdate`
-- `settings`
-- `storage`
-- `secrets`
-- `deliveries`
-- `tasks`
-- `hooks.basic`
-- `events.catalog`
-- `iframe.bridge`
-- `database.migrations`
-- `network.outbound`
+- manifest v1 and install/enable/disable/update lifecycle
+- `settings`, `storage`, `secrets`
+- `tasks`, basic `hooks`, `events.catalog`
+- `deliveries`, `network.outbound`
+- iframe bridge
+- manifest-declared `migrations`
 
 Beta:
 
 - `database.defineTable`
-- `ranking`
-- `articles.snapshot`
-- `diagnostics`
+- `ranking.*`
+- `articles.snapshot/openableSummary/countDiscovered`
+- `fullContent.extractor`
+- diagnostics and recommendation transparency APIs
 
-Beta fields and semantics may change during `0.2.x`. Long-lived plugins should use manifest migrations for durable schema changes instead of relying only on `database.defineTable`.
+Beta fields and semantics may change during 0.3.x. Long-lived plugins should use manifest migrations for durable schema changes instead of relying only on `database.defineTable`.
 
 ## Server Entry
 
-Export `activate(ctx)`. Host APIs are asynchronous JSON-RPC calls:
+Export `activate(ctx)`. The entry shape is unchanged, but Host APIs are asynchronous JSON-RPC calls:
 
 ```js
 export default {
@@ -179,8 +137,7 @@ export default {
 
     ctx.api.get("/state", async () => ({
       settings: await ctx.settings.list(),
-      lastRefreshAt: await ctx.storage.get("lastRefreshAt"),
-      generatedAt: await ctx.now()
+      lastRefreshAt: await ctx.storage.get("lastRefreshAt")
     }));
   }
 };
@@ -188,20 +145,26 @@ export default {
 
 Dibao pre-activates the server entry when a plugin is enabled. Activation failure keeps the plugin in `failed`. Disabling a plugin stops contributions and cancels open plugin jobs. Missing task handlers defer jobs for recovery instead of marking them as ordinary permanent failures.
 
-## Host API
+## Full Content Extractors (Beta)
 
-Common `ctx` capabilities:
+Declare `contributes.fullContentExtractors` with an `id`, `title`, and optional `order`, then register the matching handler during activation. Enabled extractors run in ascending order before Dibao's built-in extraction; malformed, empty, or short results fall back safely to the built-in extractor.
 
-- `ctx.settings`: user-facing plugin configuration.
-- `ctx.storage`: plugin KV data.
-- `ctx.secrets`: encrypted sensitive values; plaintext is not returned in UI or delivery records.
-- `ctx.deliveries`: retryable outbound HTTP delivery with `enqueue`, `get`, `list`, `cancel`, and `flush`.
-- `ctx.network.fetch`: controlled immediate request, useful for connection tests, not hot-path fan-out.
-- `ctx.tasks`: register and start plugin tasks.
-- `ctx.events.catalog`: read the host's supported event list.
-- `ctx.articles`: read article snapshots, openable summaries, and discovered counts.
-- `ctx.ranking`: read ranked winners and topic targets.
-- `ctx.database`: Beta convenience table API.
+```js
+ctx.fullContent.register("site-selector", ({ articleUrl, html, contentType }) => {
+  if (!contentType.includes("html") || !html.includes("article-body")) return null;
+  return { contentHtml: "<p>...</p>", contentText: "...", excerpt: "..." };
+});
+```
+
+The handler receives downloaded page content only. It must return normalized safe reader HTML and text, must not make network requests, and should complete quickly; a timeout falls back to the built-in extractor.
+
+## Data, Secrets, Deliveries
+
+- `settings`: user-facing plugin configuration.
+- `storage`: plugin KV data.
+- `secrets`: encrypted sensitive values; plaintext is not returned in UI or delivery records.
+- `deliveries`: retryable outbound HTTP delivery, suitable for webhooks.
+- `network.fetch`: controlled immediate request, useful for connection tests, not hot-path fan-out.
 
 ## Database Migrations
 
@@ -223,31 +186,21 @@ Never rewrite published migrations. Append a new version for changes or cleanup.
 Plugin pages must not call Dibao APIs with direct `fetch`. Use `postMessage`:
 
 ```js
-function bridge(method, payload) {
-  const requestId = `${Date.now()}:${Math.random().toString(16).slice(2)}`;
-  window.parent.postMessage(
-    { type: "dibao.bridge", schemaVersion: 1, pluginId, requestId, method, payload },
-    "*"
-  );
-}
+window.parent.postMessage({
+  type: "dibao.bridge",
+  schemaVersion: 1,
+  pluginId,
+  requestId,
+  method: "pluginApi",
+  payload: { method: "GET", path: "state" }
+}, "*");
 ```
 
-Common methods:
-
-- `pluginApi`: `{ method: "GET" | "POST", path, body }`
-- `getSettings` / `updatePluginSettings`
-- `listPluginSecrets` / `setPluginSecret` / `deletePluginSecret`
-- `listPluginDeliveries` / `getPluginDelivery`
-- `startTask`
-- `readArticles`
-- `getArticleState`
-- `recordArticleAction`
-- `getArticleExplanation`
-- `openArticle`
+Common methods: `pluginApi`, `getAuthSession`, `getSettings`, `updatePluginSettings`, `listPluginSecrets`, `setPluginSecret`, `deletePluginSecret`, `listPluginDeliveries`, `getPluginDelivery`, `startTask`, `readArticles`, `getArticleState`, `recordArticleAction`, `getArticleExplanation`, and `openArticle`.
 
 The host validates iframe source, `pluginId`, and `requestId`.
 
-## CLI Flow
+## CLI
 
 ```sh
 dibao-plugin create ./my-plugin
@@ -264,9 +217,7 @@ The template includes `server/`, `web/`, `locales/`, `migrations/`, README, rele
 
 ## Signing And Trusted Keys
 
-Dibao uses Ed25519 signatures over a stable payload containing manifest, files, and `updateUrl`. Server-side third-party plugin installation requires a signature, and the signature `keyId` must be present in the administrator's trusted keys.
-
-Never ship private keys inside plugin packages. Releases should publish the package, SHA-256, `keyId`, and public-key trust instructions.
+Dibao uses Ed25519 signatures over a stable payload containing manifest, files, and updateUrl. Administrators must trust the public key by key id before a signed package verifies. Never ship private keys in plugin packages.
 
 ## Docker Persistence
 
@@ -274,9 +225,9 @@ With `/data` mounted, these survive image upgrades:
 
 - `/data/plugins/installed`
 - `/data/plugins/data/<plugin-id>`
-- SQLite tables: `plugin_installs`, `plugin_capability_grants`, `plugin_settings`, `plugin_kv`, `plugin_migrations`, `plugin_update_checks`, `plugin_secrets`, `plugin_deliveries`, `plugin_delivery_attempts`
+- SQLite tables: `plugin_installs`, `plugin_capability_grants`, `plugin_settings`, `plugin_kv`, `plugin_migrations`, `plugin_update_checks`, `plugin_secrets`, `plugin_deliveries`
 
-Official Daily Brief and Webhook plugins are scanned from the bundled `0.2` image. Third-party plugins remain in the data volume.
+Official Daily Brief, Webhook, and Full Content Selectors plugins are scanned from the bundled 0.3.1 image. Third-party plugins remain in the data volume.
 
 ## Updates And Rollback
 
@@ -291,7 +242,7 @@ Recommended update metadata:
 }
 ```
 
-Dibao downloads to staging, validates ID, compatibility range, checksum, and signature, then swaps the installed package. Failures roll back to the old package. Users can also roll back by uploading an older `.dibao-plugin`.
+Dibao downloads to staging, validates ID/compatibility/checksum, then swaps the installed package. Failures roll back to the old package. Users can also roll back by uploading an older `.dibao-plugin`.
 
 ## Release Checklist
 
@@ -305,9 +256,9 @@ Dibao downloads to staging, validates ID, compatibility range, checksum, and sig
 
 ## Test Checklist
 
-- Manifest, signature, and tamper rejection.
+- Manifest/signature/tamper rejection.
 - Activation failure moves to `failed`.
 - Missing handlers defer recoverably.
-- Secrets never reveal plaintext; deliveries flush and retry.
+- Secrets never reveal plaintext; deliveries flush/retry.
 - Outbound network cannot reach blocked private/local targets.
 - iframe sandbox is present; bridge success and error responses work.

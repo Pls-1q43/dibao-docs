@@ -1,24 +1,23 @@
 ---
 title: 插件开发
-description: Dibao 0.2 插件 manifest、能力、Host API、iframe bridge、打包签名和发布检查清单。
+description: Dibao 0.3 插件 manifest、本地化、全文抓取器、Host API、iframe bridge、打包签名和发布检查清单。
 ---
 
-本文面向第三方插件开发者。Dibao `0.2.x` 的插件系统定位是“可信管理员安装的生态平台版”：插件可以扩展服务端任务、Hook、设置页和 Web UI，但仍是可信本地代码，不承诺能安全运行任意恶意代码。
+Last updated: 2026-08-11
 
-官方插件例如 [Webhook](webhook/) 和 Daily Brief 也走同一套 manifest、capability、贡献点和启停模型；第三方插件需要额外经过签名、trusted key、安装和启用流程。
+本文面向第三方插件开发者。邸报 0.3 的插件系统定位是“可信管理员安装的生态平台版”：插件可以扩展服务端任务、Hook、设置页、Web UI 和全文抓取器，但仍是可信本地代码，不承诺能安全运行任意恶意代码。
 
 ## 安全模型
 
-- 服务端插件运行在独立 Node host 子进程中，通过 JSON-RPC 调用 Dibao 白名单 Host API。
+- 服务端插件运行在独立 Node host 子进程中，通过 JSON-RPC 调用邸报白名单 Host API。
 - 主进程不会把 `db`、`process`、Fastify `request/reply` 或内部 service 对象传给插件。
-- Web 插件运行在 `sandbox="allow-scripts allow-forms"` iframe 中，不包含 `allow-same-origin`。
-- 插件页面不能直接 `fetch` Dibao API，必须通过 `postMessage` bridge 请求宿主能力。
-- 插件 HTML 带 CSP：禁止直接 `fetch`、表单提交和默认外部资源；允许内联脚本/样式和 `/api/plugins/ui.css`。
-- 第三方插件安装后默认不启用。管理员启用前应检查来源、签名信任、capabilities、Stable/Beta API 使用和服务端代码风险。
+- Web 插件运行在 `sandbox="allow-scripts allow-forms"` iframe 中，不含 `allow-same-origin`。插件页面必须通过 `postMessage` bridge 访问宿主能力。
+- 插件资产 HTML 带 CSP：禁止直接 `fetch`、表单提交和默认外部资源；允许内联脚本/样式和 `/api/plugins/ui.css`。
+- 第三方上传安装仍可用，但默认不启用。管理员启用前应检查来源、签名信任、capabilities、Stable/Beta API 使用和服务端代码风险。
 
 ## Manifest v1
 
-`.dibao-plugin` 是 JSON 包，顶层包含 `manifest`、`files`，可选 `updateUrl` 和 `signature`。
+`.dibao-plugin` 当前是 JSON 包：
 
 ```json
 {
@@ -28,36 +27,25 @@ description: Dibao 0.2 插件 manifest、能力、Host API、iframe bridge、打
     "name": "Reader Tools",
     "version": "0.1.0",
     "publisher": "Example",
-    "dibao": { "minVersion": "0.2.0", "maxVersion": "<0.3.0" },
+    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.4.0" },
     "entry": { "server": "server/index.mjs", "web": "web/index.html" },
     "capabilities": ["settings:plugin", "files:plugin-data", "jobs:write"],
     "migrations": [
       {
         "version": "001",
         "name": "create_notes",
-        "path": "migrations/001_create_notes.sql"
+        "path": "migrations/001_create_notes.sql",
+        "checksum": "可选 sha256"
       }
     ],
     "contributes": {
-      "settingsTabs": [
-        {
-          "id": "settings",
-          "title": "Reader Tools",
-          "slot": "settings.tabs",
-          "route": "settings",
-          "order": 90,
-          "icon": "settings"
-        }
-      ],
+      "settingsTabs": [{ "id": "settings", "title": "Reader Tools", "slot": "settings.tabs", "route": "settings" }],
+      "tabs": [],
+      "routes": [],
+      "actions": [],
       "hooks": ["maintenance.tick"],
-      "tasks": [
-        {
-          "id": "readerTools.refresh",
-          "kind": "background",
-          "schedule": "manual",
-          "defaultEnabled": false
-        }
-      ]
+      "events": [],
+      "tasks": [{ "id": "readerTools.refresh", "kind": "background", "schedule": "manual" }]
     }
   },
   "files": {
@@ -68,11 +56,34 @@ description: Dibao 0.2 插件 manifest、能力、Host API、iframe bridge、打
 }
 ```
 
-`id` 建议使用反向域名或稳定命名空间。`dibao.maxVersion` 建议写成 `<0.3.0`，避免未来 breaking API 自动启用。
+`id` 建议使用反向域名；`dibao.maxVersion` 建议写成 `<0.4.0`，避免未来 breaking API 自动启用。
+
+### 插件本地化
+
+从 0.3 起，manifest 中面向用户的字符串可以继续写普通字符串，也可以写成 locale map：
+
+```json
+{
+  "name": { "zh-CN": "阅读工具", "en-US": "Reader Tools", "ja-JP": "リーダーツール" },
+  "publisher": { "zh-CN": "示例", "en-US": "Example", "ja-JP": "Example" },
+  "contributes": {
+    "settingsTabs": [
+      {
+        "id": "settings",
+        "title": { "zh-CN": "阅读工具", "en-US": "Reader Tools", "ja-JP": "リーダーツール" },
+        "slot": "settings.tabs",
+        "route": "settings"
+      }
+    ]
+  }
+}
+```
+
+邸报按当前语言解析 manifest 字符串，fallback 顺序为完整 locale、语言代码、`zh-CN`、`zh`、第一个可用值。Web 插件 iframe 会收到 `?locale=zh-CN|en-US|ja-JP` 参数，并可通过 bridge 方法 `getLocale` 读取当前语言。服务端插件启动时可读 `ctx.locale`；如果插件需要跟随运行中的语言切换，使用 `await ctx.i18n.getLocale()`。
 
 ## Capabilities
 
-0.2 支持这些 capability：
+0.3 支持：
 
 ```text
 articles:read
@@ -95,80 +106,32 @@ files:plugin-data
 telemetry:emit
 ```
 
-只声明实际需要的能力。`network:outbound` 受 SSRF 防护、大小限制、重定向限制和超时限制。敏感 header 应使用 `secrets:plugin` 并通过 delivery `secretHeaders` 引用，不要写进普通配置或静态 headers。
-
-## 贡献点
-
-Manifest 中的 `contributes` 决定插件出现在 UI 或运行时的哪个位置：
-
-- `settingsTabs`：设置页中的插件配置 Tab，常用 slot 是 `settings.tabs`。
-- `tabs` / `routes`：主应用导航或插件页面入口，例如 Daily Brief。
-- `actions`：文章列表或工具栏中的动作按钮。
-- `setupSteps`：首次安装的可选插件步骤。
-- `hooks`：订阅 Dibao 事件。
-- `events`：插件自己声明可发出的事件。
-- `tasks`：前台或后台任务，支持 `manual`、`interval`、`daily`、`weekly` 调度声明。
-
-常见 UI slot 包括：
-
-```text
-app.main.nav.items
-app.main.tabs
-article.list.item.actions.end
-article.list.toolbar.end
-article.reader.bottomSheet.actions
-settings.tabs
-algorithm.jobs.actions
-```
-
-## 支持事件
-
-插件可以订阅或声明这些事件：
-
-```text
-article.created
-article.updated
-article.actionRecorded
-feed.refreshCompleted
-ranking.afterRanked
-settings.afterUpdated
-plugin.taskSucceeded
-plugin.taskFailed
-maintenance.tick
-dailyBrief.generated
-```
-
-Hook 运行有超时保护。不要在 Hook 热路径里做大量网络 fan-out；需要出站 HTTP 时优先入队 `deliveries`。
+只声明实际需要的能力。`network:outbound` 受 SSRF 防护、大小限制、重定向限制和超时限制；敏感 header 应通过 `secrets:plugin` + deliveries secret headers 引用。
 
 ## API 稳定层级
 
 Stable：
 
-- `manifest.v1`
-- `lifecycle.installEnableDisableUpdate`
-- `settings`
-- `storage`
-- `secrets`
-- `deliveries`
-- `tasks`
-- `hooks.basic`
-- `events.catalog`
-- `iframe.bridge`
-- `database.migrations`
-- `network.outbound`
+- manifest v1、安装/启用/禁用/更新生命周期
+- `settings`、`storage`、`secrets`
+- `tasks`、基础 `hooks`、`events.catalog`
+- `deliveries`、`network.outbound`
+- iframe bridge
+- manifest 声明式 `migrations`
 
 Beta：
 
-- `database.defineTable`
-- `ranking`
-- `articles.snapshot`
-- `diagnostics`
+- `database.defineTable` 便捷 API
+- `ranking.*`
+- `articles.snapshot/openableSummary/countDiscovered`
+- `fullContent.extractor`
+- diagnostics / recommendation transparency 类能力
 
-Beta API 可在 `0.2.x` 中调整字段或语义。长期插件应把持久 schema 写成 manifest migrations，而不是只依赖 `database.defineTable`。
+Beta API 可在 0.3.x 中调整字段或语义。长期插件应把持久 schema 写成 manifest migrations，而不是只依赖 `database.defineTable`。
 
 ## 服务端入口
 
-服务端入口导出 `activate(ctx)`。Host API 是异步 JSON-RPC 调用：
+服务端入口导出 `activate(ctx)`。入口形式保持不变，但 Host API 是异步 JSON-RPC：
 
 ```js
 export default {
@@ -183,33 +146,38 @@ export default {
 
     ctx.api.get("/state", async () => ({
       settings: await ctx.settings.list(),
-      lastRefreshAt: await ctx.storage.get("lastRefreshAt"),
-      generatedAt: await ctx.now()
+      lastRefreshAt: await ctx.storage.get("lastRefreshAt")
     }));
   }
 };
 ```
 
-启用插件时 Dibao 会预激活 server entry。激活失败会让插件保持 `failed`；禁用插件会停止贡献点并取消该插件未完成任务。缺失 task handler 的插件任务会延后重试，表现为可恢复的 plugin-paused 语义，而不是普通永久失败。
+启用插件时邸报会预激活 server entry。激活失败会让插件保持 `failed`；禁用插件会停止贡献点并取消该插件未完成任务。缺失 task handler 的插件任务会延后重试，表现为可恢复的 plugin-paused 语义，而不是普通永久失败。
 
-## Host API
+## 全文抓取器（Beta）
 
-常用 `ctx` 能力：
+在 `contributes.fullContentExtractors` 声明 `id`、`title` 和可选 `order`，并在激活时注册同名 handler。已启用抓取器按 `order` 升序先于内置提取运行；返回格式错误、为空或正文过短时，会安全回退到内置提取器。
 
-- `ctx.settings`: 用户可配置项。
-- `ctx.storage`: 插件 KV 数据。
-- `ctx.secrets`: 加密保存敏感值，UI 和 delivery 记录不回显明文。
-- `ctx.deliveries`: 可重试的出站 HTTP 投递，支持 `enqueue`、`get`、`list`、`cancel`、`flush`。
-- `ctx.network.fetch`: 受控即时请求，适合测试连接，不适合热路径大量调用。
-- `ctx.tasks`: 注册和启动插件任务。
-- `ctx.events.catalog`: 读取宿主当前支持的事件列表。
-- `ctx.articles`: 读取文章 snapshot、openable summary 和发现计数。
-- `ctx.ranking`: 读取推荐结果和兴趣主题目标。
-- `ctx.database`: Beta 便捷表 API。
+```js
+ctx.fullContent.register("site-selector", ({ articleUrl, html, contentType }) => {
+  if (!contentType.includes("html") || !html.includes("article-body")) return null;
+  return { contentHtml: "<p>...</p>", contentText: "...", excerpt: "..." };
+});
+```
+
+handler 只会收到已下载的页面内容；应返回已规范化的安全阅读 HTML 与文本，不应自行发起网络请求，并须尽快完成。超时会自动回退到内置提取器。
+
+## 数据、Secrets 和 Deliveries
+
+- `settings`：面向用户可配置项。
+- `storage`：插件 KV 数据。
+- `secrets`：加密保存敏感值，UI 和 delivery 记录不回显明文。
+- `deliveries`：可重试的出站 HTTP 投递，适合 webhook。
+- `network.fetch`：受控即时请求，适合测试连接，不适合热路径大量调用。
 
 ## 数据库迁移
 
-推荐在 manifest 中声明 migrations。Dibao 记录 `plugin_id/version/name/checksum/applied_at`。同一 `version` 已应用后，如果 `name` 或 checksum 改变，启用会失败以避免历史 schema 漂移。
+推荐在 manifest 中声明 migrations。邸报记录 `plugin_id/version/name/checksum/applied_at`。同一 `version` 已应用后，如果 `name` 或 checksum 改变，启用会失败以避免历史 schema 漂移。
 
 ```json
 {
@@ -224,37 +192,31 @@ export default {
 
 ## iframe Bridge
 
-插件页面不能直接 `fetch("/api/...")`。使用 `postMessage` bridge：
+插件页面不能直接 `fetch("/api/...")`。使用 `postMessage`：
 
 ```js
 function bridge(method, payload) {
   const requestId = `${Date.now()}:${Math.random().toString(16).slice(2)}`;
-  window.parent.postMessage(
-    { type: "dibao.bridge", schemaVersion: 1, pluginId, requestId, method, payload },
-    "*"
-  );
+  window.parent.postMessage({ type: "dibao.bridge", schemaVersion: 1, pluginId, requestId, method, payload }, "*");
 }
 ```
 
 常用方法：
 
 - `pluginApi`: `{ method: "GET" | "POST", path, body }`
+- `getAuthSession`
 - `getSettings` / `updatePluginSettings`
 - `listPluginSecrets` / `setPluginSecret` / `deletePluginSecret`
 - `listPluginDeliveries` / `getPluginDelivery`
 - `startTask`
-- `readArticles`
-- `getArticleState`
-- `recordArticleAction`
-- `getArticleExplanation`
-- `openArticle`
+- 阅读类 UI 可使用 `readArticles`、`getArticleState`、`recordArticleAction`、`getArticleExplanation`、`openArticle`
 
 宿主会校验 iframe source、`pluginId` 和 `requestId`。
 
 ## CLI 流程
 
 ```sh
-dibao-plugin create ./my-plugin
+npm create dibao-plugin ./my-plugin
 dibao-plugin validate ./my-plugin
 dibao-plugin pack ./my-plugin --out my-plugin.dibao-plugin
 dibao-plugin sign my-plugin.dibao-plugin \
@@ -268,9 +230,7 @@ dibao-plugin sign my-plugin.dibao-plugin \
 
 ## 签名与 trusted keys
 
-Dibao 使用 Ed25519 签名。签名覆盖 manifest、files 和 `updateUrl` 的稳定序列化 payload。服务器安装第三方插件时要求签名存在，且 `keyId` 必须在管理员配置的 trusted keys 中。
-
-不要把私钥放进插件包。发布时应同时提供包文件、SHA-256、`keyId` 和公钥信任说明。
+邸报使用 Ed25519 签名。签名覆盖 manifest、files 和 updateUrl 的稳定序列化 payload。管理员需要把公钥加入 trusted keys 后，签名包才会通过信任校验。不要在插件包中放私钥。
 
 ## Docker 持久化
 
@@ -278,9 +238,9 @@ Dibao 使用 Ed25519 签名。签名覆盖 manifest、files 和 `updateUrl` 的�
 
 - `/data/plugins/installed`
 - `/data/plugins/data/<plugin-id>`
-- SQLite 表：`plugin_installs`、`plugin_capability_grants`、`plugin_settings`、`plugin_kv`、`plugin_migrations`、`plugin_update_checks`、`plugin_secrets`、`plugin_deliveries`、`plugin_delivery_attempts`
+- SQLite 表：`plugin_installs`、`plugin_capability_grants`、`plugin_settings`、`plugin_kv`、`plugin_migrations`、`plugin_update_checks`、`plugin_secrets`、`plugin_deliveries`
 
-官方 Daily Brief 和 Webhook 插件随 `0.2` 镜像扫描；第三方插件保留在数据卷中。
+官方 Daily Brief、Webhook 和 Full Content Selectors 插件随 0.3.1 镜像扫描；第三方插件保留在数据卷中。
 
 ## 更新与回滚
 
@@ -295,7 +255,7 @@ Dibao 使用 Ed25519 签名。签名覆盖 manifest、files 和 `updateUrl` 的�
 }
 ```
 
-Dibao 更新时会下载到 staging、校验 ID/兼容范围/checksum 和签名、替换安装目录；失败会回滚旧包。用户可以通过重新上传旧 `.dibao-plugin` 回滚。
+邸报更新时会下载到 staging、校验 ID/兼容范围/checksum、替换安装目录；失败会回滚旧包。用户可以通过重新上传旧 `.dibao-plugin` 回滚。
 
 ## 发布 Checklist
 
@@ -309,9 +269,9 @@ Dibao 更新时会下载到 staging、校验 ID/兼容范围/checksum 和签名�
 
 ## 测试 Checklist
 
-- manifest、签名和篡改包拒绝。
+- manifest/签名/篡改包拒绝。
 - 启用预激活失败进入 `failed`。
 - 缺 handler 任务可恢复延后。
 - secrets 不回显明文；deliveries 可 flush 和重试。
-- 出站网络不能访问被阻止的私网/本机目标。
+- 出站网络不能访问私网/本机受限目标。
 - iframe `sandbox` 存在，bridge 正常/异常请求都有响应。

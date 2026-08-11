@@ -7,12 +7,12 @@ Dibao works without an AI provider, but embeddings make recommendations more per
 
 ## Choose By Host
 
-| Deployment | Recommendation | Why |
-| --- | --- | --- |
-| Local MacBook, Mac mini, or Windows desktop/laptop | Local Ollama | No API cost and reading data stays on the machine. Use `bge-m3`, dimension `1024`. |
-| Home NAS or low-power mini PC | Prefer an external provider | Weak CPUs and small memory make embedding backfill slow. Use SiliconFlow or Gemini first. |
-| VPS with at least `4 vCPU / 8GB RAM` | Ollama CPU can work | Use `bge-m3` if slow background embedding is acceptable. |
-| VPS below `4 vCPU / 8GB RAM` | SiliconFlow or Gemini | Small VPS instances should not spend limited CPU/RAM on embedding. |
+| Deployment | Recommendation |
+| --- | --- |
+| Local MacBook, Mac mini, or Windows desktop/laptop | Use local Ollama first. It keeps reading data on the machine and avoids API cost. Recommended model: `bge-m3`; dimension: `1024`. |
+| Home NAS or low-power mini PC | Prefer [SiliconFlow](https://cloud.siliconflow.cn/i/4wjbYmMH) or Gemini unless the CPU is close to desktop-class and memory is comfortable. |
+| VPS with at least `4 vCPU / 8GB RAM` | Ollama CPU can work for background embedding. Use `bge-m3`, and expect initial indexing to take time. |
+| VPS below `4 vCPU / 8GB RAM` | Use SiliconFlow or Gemini. Small VPS instances should not spend limited CPU/RAM on embedding backfill. |
 
 ## Local Ollama
 
@@ -27,19 +27,19 @@ ollama pull bge-m3
 | Model | `bge-m3` |
 | Dimension | `1024` |
 
-`bge-m3` works well for multilingual RSS. For a lighter local option, use `nomic-embed-text` with dimension `768`.
+`bge-m3` is the default local recommendation because it is not oversized, works well for multilingual RSS, and is available directly from Ollama. For a lighter local option, use `nomic-embed-text` with dimension `768`.
 
 ## External Low-Cost Providers
 
 | Provider | Settings |
 | --- | --- |
-| SiliconFlow | Type: `OpenAI-compatible`; Base URL: `https://api.siliconflow.cn/v1`; Model: `BAAI/bge-m3`; Dimension: `1024`; API Key: create one in the provider console. |
-| Gemini | Type: `OpenAI-compatible`; Base URL: `https://generativelanguage.googleapis.com/v1beta/openai/`; Model: `gemini-embedding-001`; Dimension: `768`; API Key: create one in Google AI Studio. |
+| [SiliconFlow](https://cloud.siliconflow.cn/i/4wjbYmMH) | Recommended model: `BAAI/bge-m3`. It is free, has no daily quota, and is rate-limited by RPM / TPM. Current L0 limits are 2,000 RPM and 500,000 TPM.<br>Type: `OpenAI-compatible`<br>Base URL: `https://api.siliconflow.cn/v1`<br>Model: `BAAI/bge-m3`<br>Dimension: `1024` |
+| Gemini | Gemini embedding is also free and works well for a small personal RSS setup. Plan around the free tier's roughly 1,000 requests per day.<br>Type: `OpenAI-compatible`<br>Base URL: `https://generativelanguage.googleapis.com/v1beta/openai/`<br>Model: `gemini-embedding-001`<br>Dimension: `768` |
 
 Free tiers, pricing, rate limits, and regional availability can change. Check provider pages before heavy use.
 
 ## In The App
 
-Go to `Settings` -> `Algorithm` -> `Provider`, choose the provider type, fill in Base URL, Model, Dimension, and API Key, then test the connection before setting it as current.
+Go to `Settings` -> `Recommended Provider`, choose the provider type, fill in Base URL, Model, Dimension, and API Key, then test the connection before setting it as current.
 
 Changing model or dimension requires regenerating embeddings. Dibao keeps reading data, but vectors from different models cannot be mixed. If the provider is unavailable, reading still works and recommendations fall back to baseline ranking.
