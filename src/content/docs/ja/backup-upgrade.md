@@ -22,13 +22,13 @@ docker compose stop
 tar czf "dibao-data-before-v0.4.1-$(date +%Y%m%d-%H%M%S).tgz" -C data .
 ```
 
-保存後、`compose.yaml` の image を変更します。
+保存後、`compose.yaml` が次のイメージを使っているか確認します。すでに `latest` を使っている場合、設定の変更は不要です。
 
 ```yaml
-image: ghcr.io/pls-1q43/dibao:v0.4.1
+image: ghcr.io/pls-1q43/dibao:latest
 ```
 
-volume と環境変数を保ち、実行します。
+volume と環境変数を保ち、次を実行します。`latest` は実行中のコンテナーを自動更新しないため、イメージを取得してコンテナーを再作成する必要があります。
 
 ```bash
 docker compose pull
@@ -38,7 +38,7 @@ docker compose ps
 
 ## 更新完了の確認
 
-1. `http://localhost:8080/api/system/health` の応答で `data.ok: true` と `data.version: "0.4.1"` を確認します。
+1. `http://localhost:8080/api/system/health` の応答で `data.ok: true` を確認し、`data.version` が取得した安定版と一致することを確認します（現在は `"0.4.1"`）。
 2. ログイン後、`/api/system/upgrade/status` が最終的に `completed` または `not_required`、`data.blocking: false` になるまで確認します。
 3. 更新画面が終了し、読書と操作ができることを確認します。
 

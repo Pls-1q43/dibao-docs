@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
-    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "build": "npm run check:docs && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
-    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check && npm run build",
+    "check:docs": "node scripts/check-install-docs.mjs",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

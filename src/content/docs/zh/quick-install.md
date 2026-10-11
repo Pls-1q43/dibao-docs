@@ -9,14 +9,14 @@ Windows 或 Mac 个人使用可先看 [桌面版安装](/zh/desktop-install/)，
 
 ## Docker Compose
 
-推荐用 Docker Compose 运行当前稳定版 `v0.4.1`。把下面内容保存为 `compose.yaml`：
+推荐用 Docker Compose 运行稳定版镜像 `latest`。安装示例始终使用这个标签，后续升级无需修改版本号。把下面内容保存为 `compose.yaml`：
 
 ```yaml
 name: dibao
 
 services:
   dibao:
-    image: ghcr.io/pls-1q43/dibao:v0.4.1
+    image: ghcr.io/pls-1q43/dibao:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -33,10 +33,13 @@ services:
 启动：
 
 ```bash
+docker compose pull
 docker compose up -d
 ```
 
 打开 `http://localhost:8080`，创建所有者用户名和密码，然后导入 OPML 或添加第一个 RSS / Atom 地址。
+
+`latest` 不会让正在运行的容器自动更新。后续升级请先按 [备份与升级](/zh/backup-upgrade/) 保存数据，再执行 `docker compose pull` 和 `docker compose up -d`，拉取最新镜像并重建容器。
 
 ## 首次启动后
 
@@ -56,7 +59,7 @@ cd Dibao
 docker compose up --build -d
 ```
 
-源码仓库里的 `compose.yaml` 会构建本地镜像，适合开发或验证当前分支；普通部署建议使用上方明确版本号的 GHCR 镜像。
+源码仓库里的 `compose.yaml` 会构建本地镜像，适合开发或验证当前分支；普通部署建议使用上方 `latest` 标签的 GHCR 镜像。
 
 ## HTTPS 与 Cookie
 

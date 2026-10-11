@@ -21,6 +21,10 @@ npm run dev
 npm run build
 ```
 
+Docker image examples in the quick-install and backup-upgrade pages must always use
+`ghcr.io/pls-1q43/dibao:latest`, not a version-pinned tag. Keep this rule when updating
+release documentation. The build checks all three languages before generating the site.
+
 ## Deploy
 
 Production deploys should be connected to Cloudflare Workers GitHub integration:

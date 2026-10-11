@@ -22,13 +22,13 @@ docker compose stop
 tar czf "dibao-data-before-v0.4.1-$(date +%Y%m%d-%H%M%S).tgz" -C data .
 ```
 
-After preserving the backup, set the image in `compose.yaml`:
+After preserving the backup, confirm that `compose.yaml` uses this image. No configuration change is needed if it already uses `latest`:
 
 ```yaml
-image: ghcr.io/pls-1q43/dibao:v0.4.1
+image: ghcr.io/pls-1q43/dibao:latest
 ```
 
-Keep volumes and environment settings, then run:
+Keep volumes and environment settings, then run the commands below. `latest` does not automatically update running containers; pull the new image and recreate the container:
 
 ```bash
 docker compose pull
@@ -38,7 +38,7 @@ docker compose ps
 
 ## Verify Completion
 
-1. Open `http://localhost:8080/api/system/health` and confirm `data.ok: true` and `data.version: "0.4.1"` in the response.
+1. Open `http://localhost:8080/api/system/health`, confirm `data.ok: true`, and verify that `data.version` matches the stable release you pulled (currently `"0.4.1"`).
 2. While signed in, check `/api/system/upgrade/status` until the final state is `completed` or `not_required` with `data.blocking: false`.
 3. Confirm the upgrade screen closes and normal reading and actions work.
 

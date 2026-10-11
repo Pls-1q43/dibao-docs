@@ -22,13 +22,13 @@ docker compose stop
 tar czf "dibao-data-before-v0.4.1-$(date +%Y%m%d-%H%M%S).tgz" -C data .
 ```
 
-保存备份后，将 `compose.yaml` 镜像改为：
+保存备份后，确认 `compose.yaml` 使用以下镜像；已经使用 `latest` 时无需修改配置：
 
 ```yaml
-image: ghcr.io/pls-1q43/dibao:v0.4.1
+image: ghcr.io/pls-1q43/dibao:latest
 ```
 
-保留数据卷和环境变量，然后执行：
+保留数据卷和环境变量，然后执行以下命令。`latest` 不会自动更新运行中的容器，需要重新拉取镜像并重建容器：
 
 ```bash
 docker compose pull
@@ -38,7 +38,7 @@ docker compose ps
 
 ## 验证升级完成
 
-1. 打开 `http://localhost:8080/api/system/health`，确认响应里的 `data.ok: true` 与 `data.version: "0.4.1"`。
+1. 打开 `http://localhost:8080/api/system/health`，确认响应里的 `data.ok: true`，并确认 `data.version` 与本次拉取的稳定版一致（当前为 `"0.4.1"`）。
 2. 登录后访问 `/api/system/upgrade/status`，确认最终为 `completed` 或 `not_required`，且 `data.blocking: false`。
 3. 确认升级页面退出，可以正常阅读并执行操作。
 

@@ -9,14 +9,14 @@ Windows／Mac の個人利用は、サーバー不要の [デスクトップ版]
 
 ## Docker Compose
 
-現在の安定版 `v0.4.1` は Docker Compose での実行を推奨します。次の内容で `compose.yaml` を作成します。
+Docker Compose では安定版の `latest` イメージを推奨します。導入例は常にこのタグを使うため、更新時にバージョン番号を書き換える必要はありません。次の内容で `compose.yaml` を作成します。
 
 ```yaml
 name: dibao
 
 services:
   dibao:
-    image: ghcr.io/pls-1q43/dibao:v0.4.1
+    image: ghcr.io/pls-1q43/dibao:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -33,10 +33,13 @@ services:
 起動します。
 
 ```bash
+docker compose pull
 docker compose up -d
 ```
 
 `http://localhost:8080` を開き、所有者アカウントのユーザー名とパスワードを作成します。その後、OPML をインポートするか、最初の RSS / Atom フィードを追加します。
+
+`latest` を指定しても実行中のコンテナーは自動更新されません。次回の更新前に [バックアップと更新](/ja/backup-upgrade/) に従ってデータを保存し、`docker compose pull` と `docker compose up -d` で最新イメージを取得してコンテナーを再作成します。
 
 ## 初回起動後
 
@@ -56,7 +59,7 @@ cd Dibao
 docker compose up --build -d
 ```
 
-repository の `compose.yaml` は local image を build するため、開発や branch 検証向けです。通常の deployment では上の明示的な GHCR version を推奨します。
+repository の `compose.yaml` は local image を build するため、開発や branch 検証向けです。通常の deployment では上の `latest` タグの GHCR image を推奨します。
 
 ## HTTPS と Cookie
 

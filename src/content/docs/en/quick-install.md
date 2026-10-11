@@ -9,14 +9,14 @@ For personal Windows or Mac use, see [Desktop Installation](/en/desktop-install/
 
 ## Docker Compose
 
-Use Docker Compose for the current stable release, `v0.4.1`. Save this as `compose.yaml`:
+Use Docker Compose with the stable `latest` image. Installation examples always use this tag, so upgrades do not require changing a version number. Save this as `compose.yaml`:
 
 ```yaml
 name: dibao
 
 services:
   dibao:
-    image: ghcr.io/pls-1q43/dibao:v0.4.1
+    image: ghcr.io/pls-1q43/dibao:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -33,10 +33,13 @@ services:
 Start Dibao:
 
 ```bash
+docker compose pull
 docker compose up -d
 ```
 
 Open `http://localhost:8080`, create the owner login, then import OPML or add your first RSS / Atom feed.
+
+`latest` does not automatically update running containers. For later upgrades, preserve your data following [Backup And Upgrades](/en/backup-upgrade/), then run `docker compose pull` and `docker compose up -d` to fetch the latest image and recreate the container.
 
 ## First Launch
 
@@ -56,7 +59,7 @@ cd Dibao
 docker compose up --build -d
 ```
 
-The repository `compose.yaml` builds a local image and is intended for development or branch validation. For ordinary deployments, prefer the explicit GHCR version above.
+The repository `compose.yaml` builds a local image and is intended for development or branch validation. For ordinary deployments, prefer the GHCR image tagged `latest` above.
 
 ## HTTPS And Cookies
 
