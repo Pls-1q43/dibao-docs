@@ -1,16 +1,22 @@
 ---
 title: Quick Install
-description: Install Dibao v0.3.1 with Docker Compose.
+description: Choose Desktop or Docker Compose to install Dibao v0.4.1.
 ---
 
-Use Docker Compose for the current stable release, `v0.3.1`. Save this as `compose.yaml`:
+## Desktop Or Docker
+
+For personal Windows or Mac use, see [Desktop Installation](/en/desktop-install/) without deploying a server. For a NAS, home server, or VPS, use Docker Compose below.
+
+## Docker Compose
+
+Use Docker Compose for the current stable release, `v0.4.1`. Save this as `compose.yaml`:
 
 ```yaml
 name: dibao
 
 services:
   dibao:
-    image: ghcr.io/pls-1q43/dibao:v0.3.1
+    image: ghcr.io/pls-1q43/dibao:v0.4.1
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -35,10 +41,12 @@ Open `http://localhost:8080`, create the owner login, then import OPML or add yo
 ## First Launch
 
 1. Create the single owner account.
-2. Import OPML or add your first RSS / Atom URL.
+2. Import OPML or add RSS / Atom feeds, or choose Add later.
 3. Skip provider setup or configure embeddings with [Recommended Providers](../providers/).
 4. Start reading in Recommended and Latest.
 5. Enable bundled official plugins such as Daily Brief or Webhook from setup or Settings.
+
+Choose the language on the welcome screen; feeds and AI can be configured later. See [Offline Reading](/en/offline-reading/) for Web caches and [Backup And Upgrades](/en/backup-upgrade/) for existing installations.
 
 ## Build From Source
 
@@ -61,4 +69,4 @@ environment:
 
 ## Background Worker
 
-The v0.3.1 default entrypoint starts both an HTTP process and a separate worker process. The worker handles feed refresh, embeddings, ranking, plugin tasks, and full-content background work. Custom Compose files should keep `DIBAO_SQLITE_JOURNAL_MODE: DELETE` to avoid bind-mount SQLite WAL visibility issues across Docker processes.
+The v0.4.1 default entrypoint starts both an HTTP process and a separate worker process. The worker handles feed refresh, embeddings, ranking, plugin tasks, and full-content background work. Custom Compose files should keep `DIBAO_SQLITE_JOURNAL_MODE: DELETE` to avoid bind-mount SQLite WAL visibility issues across Docker processes.

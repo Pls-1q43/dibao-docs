@@ -1,38 +1,54 @@
 ---
 title: 開発者ドキュメント
-description: Dibao 0.3 developer entry point、repository structure、public contracts。
+description: Dibao v0.4.1 のコア、Desktop、オフライン、API、移行とプラグイン開発。
 ---
 
-開発者ドキュメントは `0.2.0` 以降の公開リファレンスとして維持されます。現在の line は `0.3.x` で、repository structure、API、database schema、推薦アルゴリズム、plugin system、full-content fetching、runtime performance、release process を扱います。
+公開版は `v0.4.1` で、主プロジェクト `main` の完全リリースに対応します。開発ブランチは現在の版系列と公開規則に従って選び、古い 0.2／0.3 案内を現状として扱わないでください。
 
-## Repository structure
+## リポジトリー構造
 
-- `apps/web`: Web app、PWA、settings、feed management、full-content preview、plugin iframe host。
-- `apps/server`: API、RSS fetching、full-content fetching、background jobs、recommendation maintenance、plugin host、authentication。
-- `packages/db`: database types、migrations、shared data contracts。
-- `packages/plugin-sdk`: plugin manifest、capabilities、events、signatures、package validation。
-- `packages/plugin-cli`: third-party plugin template、validation、packaging、signing commands。
-- `plugins/official`: bundled official plugins: Daily Brief、Webhook、Full Content Selectors。
-- `docs`: public product、engineering、developer reference。
+- `apps/desktop`：Electron 主プロセスと preload、ローカル実行、更新、保存と復元。
+- `apps/web`：React、リーダー、PWA、オフラインキャッシュ、iframe 宿主。
+- `apps/server`：Fastify API、認証、取得、worker、推薦、プラグイン宿主。
+- `packages/db`：SQLite repository、移行とベクトル。
+- `packages/ranking`：興味プロフィールと順位付け。
+- `packages/plugin-sdk` / `packages/plugin-cli`：manifest、能力、検証、パッケージと署名。
+- `plugins/official`：Daily Brief、Webhook、Full Content Selectors。
 
-local planning notes、execution records、temporary validation evidence、machine-specific instructions は public docs に含めません。
+## 開発と検証
 
-## 現在の 0.3 focus
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+git diff --check
+```
 
-- Recommendation v3 memory: `user_representation_snapshots`、`recommendation_exposures`、`exploration_attempts`。
-- Recommended list は active rank context をより厳密に使い、fallback batch を制限します。
-- foreground interaction path では同期的な reranking、heavy diagnostics、広範囲 write を避け、background worker が ranking、embeddings、feed refresh、plugin work を chunk 処理します。
-- Feed は `feed_only` / `fetch_full_content` をサポートし、記事 Web page は feed ごとに明示的に有効化された場合だけ取得されます。
-- Plugin manifest は localized strings に対応し、iframe/bridge API は current locale を読めます。full-content extractor は Beta plugin extension point です。
+開発サービスは `npm run dev:server` と `npm run dev:web` を使います。Desktop は `npm run build:desktop`、`npm run desktop:package`、`npm run desktop:smoke` です。ローカル作成だけでは対象 OS のインストール・更新検証を代替できません。
 
-## Public contracts
+## v0.4 の合約
 
-- API routes と request/response shape は API contract に沿って進化します。
-- Database structure は schema migrations と database schema docs に沿って進化します。
-- Plugin manifest、capabilities、hooks、UI slots、full-content extractors、iframe bridge は文書化を維持します。
-- Plugin Stable/Beta APIs、trusted signing keys、persistence paths、official plugin inventory は `0.3` 実装と同期します。
-- Recommendation docs は product behavior を説明するもので、未実装能力を UI copy として誇張しません。
+- 推薦セッションでページ送り順を固定し、`027_recommendation_sessions.sql` に位置とスコアを保存します。
+- 関連／個人向け発見は既存ベクトルの読み取りです。リーダーを開くために Embedding や全庫再計算を実施しません。
+- Web／PWA は origin とユーザーで分離し、オフライン操作は `clientActionId` で冪等化します。操作同期後に保存内容を更新します。
+- 開く、記事操作、スクロールは低遅延を保ち、プロフィール、順位付け、Embedding、重い診断は背景または明示的な処理に回します。
+- Desktop は断網時もローカル DB を使用します。終了時は進捗を保存し、背景タスクとプラグインを停止してから DB を閉じます。
 
-## Compatibility
+## データ更新とリリース
 
-正式 release と hotfix image は明示的な version number を使います。user install docs も current recommended version を使います。version をまたぐ upgrade では SQLite migration、persistent data、plugin data、embedding cost boundary を守る必要があります。0.3 upgrade は embedding recomputation を暗黙には要求しません。
+公開済み移行は削除・改変しません。core 移行は通常操作を止める可視画面で実施し、必要な派生再構築も進捗を表示します。成功後に業務を戻し、旧コンテキストを削除します。
+
+v0.4.0 は推薦セッション移行を追加し、既存 Embedding を派生更新で再利用します。v0.4.1 は SQL 移行や強制再構築を追加しません。Embedding 費用のかかる再計算はユーザーの明示的な判断が必要です。
+
+正式版は同じコミットと版から Windows x64 EXE、Intel／Apple Silicon DMG、Docker amd64／arm64 を提供します。新規導入、旧版更新、保存復元、権限を検証します。現在は未署名で、Mac は手動上書きです。
+
+## プラグインと API
+
+[プラグイン開発](/ja/plugins/development/) は Stable／Beta、互換性、bridge、抽出器、署名と CLI を説明します。[API・DB リファレンス](/ja/reference/) は新しい接口と永続化境界を扱います。
+
+前面隔離は悪意あるサーバーコードの sandbox ではありません。Desktop の権限は管理されたアプリ入口だけに許可し、プラグインや外部ページへ公開しません。
+
+## 実装の根拠
+
+`apps/server/src/app.ts`、`reader-discovery-service.ts`、`apps/web/src/api.ts`、`packages/db/migrations`、`packages/plugin-sdk/src/index.ts`、`apps/desktop/src` を参照します。全ソースは [v0.4.1](https://github.com/Pls-1q43/Dibao/tree/v0.4.1) にあります。

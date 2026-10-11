@@ -1,9 +1,9 @@
 ---
 title: 公式 Full Content Selectors プラグイン
-description: Dibao 0.3.1 の Full Content Selectors で Web 記事本文取得を改善する。
+description: Dibao 0.4.1 の Full Content Selectors で Web 記事本文取得を改善する。
 ---
 
-Full Content Selectors は Dibao `0.3.0` 以降に公式 Docker image に同梱される公式 plugin です。plugin ID は `app.dibao.full-content-selectors` で、`v0.3.1` では `0.1.1` に更新されています。一般的な blog 記事構造に対して、built-in extraction より先に selector-based extraction を試します。
+Full Content Selectors は Dibao `0.3.0` 以降に公式 Docker image に同梱される公式 plugin です。plugin ID は `app.dibao.full-content-selectors` で、`v0.4.1` では `0.1.1` に更新されています。一般的な blog 記事構造に対して、built-in extraction より先に selector-based extraction を試します。
 
 ## 使う場面
 
@@ -17,7 +17,7 @@ Full Content Selectors は Dibao `0.3.0` 以降に公式 Docker image に同梱�
 
 ## 有効化手順
 
-1. Dibao `v0.3.1` に upgrade します。
+1. Dibao `v0.4.1` に upgrade します。
 2. `Settings` -> `Plugins` を開きます。
 3. 公式 `Full Content Selectors` plugin を探します。
 4. 有効化します。公式 plugin は image に同梱され、`.dibao-plugin` upload は不要です。
@@ -47,7 +47,7 @@ full-content extraction が成功すると、Dibao は article の effective con
 
 - full-content fetching は feed が `fetch_full_content` の場合だけ行われます。
 - Web request は controlled fetch を使い、timeout、maximum byte limit、redirect handling があります。
-- v0.3.1 では NAS、home-network、自ホスト RSS のために feed discovery / refresh が private/local network URL を扱えます。一方、plugin outbound request と full-content fetching は controlled-fetch protection boundary を維持します。
+- v0.4.1 では NAS、home-network、自ホスト RSS のために feed discovery / refresh が private/local network URL を扱えます。一方、plugin outbound request と full-content fetching は controlled-fetch protection boundary を維持します。
 - site が extraction に向かない、non-HTML を返す、text が短すぎる、network failure がある場合、Dibao は feed content を保持します。
 
 ## Troubleshooting

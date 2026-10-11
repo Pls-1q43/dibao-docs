@@ -1,29 +1,31 @@
 ---
 title: Dibao Docs
-description: Dibao v0.3.1 のインストール、設定、バックアップ、拡張、運用ドキュメント。
+description: Dibao v0.4.1 の Desktop・Docker 導入、オフライン読書、プラグイン、保存と開発者資料。
 ---
 
-Dibao は、source-available / fair-code のセルフホスト RSS 推薦リーダーです。購読する RSS / Atom はあなたが選びます。Dibao は、そのフィードの内側だけで記事を並べ替え、検索し、推薦理由を説明します。
+Dibao は source-available / fair-code の個人用 RSS 推薦リーダーです。RSS / Atom は自分で選び、その中だけで順位付け、検索、推薦理由の説明を行います。読書データは PC または自ホスト環境に保存されます。
 
-現在の推奨 release は `v0.3.1` です。0.3 系では推薦アルゴリズムとメカニズムが大きく更新され、recommendation v3 memory、推薦在庫ステータス、制御された fallback、任意の無限ロード、公式 Full Content Selectors plugin、Docker worker と controlled-fetch の強化が入りました。
+現在の推奨版は `v0.4.1` です。Windows・macOS の独立アプリと Docker・Web・PWA を提供します。v0.4 はオフライン読書、関連記事、いいね後の個人提案と安定したページ送りを追加し、v0.4.1 は Desktop 常駐、更新、保存と復元、初回設定を改善しました。
 
 ## はじめに
 
-- [クイックインストール](quick-install/)：Docker Compose で `v0.3.1` を起動し、所有者アカウントを作成して OPML または最初の RSS / Atom を追加します。
-- [推奨 Provider](providers/)：Ollama、SiliconFlow、Gemini、または OpenAI-compatible embedding provider を選びます。
-- [バックアップとアップグレード](backup-upgrade/)：`./data` をバックアップし、Docker image を更新し、health と推薦在庫を確認します。
-- [プラグインインストール](plugins/installation/)：third-party `.dibao-plugin` を install し、有効化前に source、signature、capabilities を確認します。
-- [公式 Daily Brief プラグイン](plugins/daily-brief/)：過去 24 時間の personalized recommendations から topic ごとの daily digest を生成します。
-- [公式 Webhook プラグイン](plugins/webhook/)：記事、更新、推薦、Daily Brief のイベントを外部 HTTP endpoint に送信します。
-- [公式 Full Content Selectors プラグイン](plugins/full-content/)：0.3 の full-content fetching と selector-based extraction を有効化します。
-- [ライセンス FAQ](license/)：BUSL-1.1、fair-code、Change Date、商用利用の境界を確認します。
+- [クイックインストール](/ja/quick-install/)：Desktop または Docker Compose で v0.4.1 を導入。
+- [デスクトップ版](/ja/desktop-install/)：三種類のインストーラー、常駐、更新、データと復元。
+- [オフライン読書](/ja/offline-reading/)：Web／PWA の保存、切り替えと同期。
+- [読書と関連記事](/ja/reading/)：関連検索、いいね後の提案と記事状態。
+- [Provider](/ja/providers/)：任意で Ollama または外部 Embedding を接続。
+- [バックアップと更新](/ja/backup-upgrade/)：全データの保存と更新完了の確認。
+- [プラグイン導入](/ja/plugins/installation/)：公式を有効化、または信頼できる外部パッケージを導入。
+- [Daily Brief](/ja/plugins/daily-brief/)、[Webhook](/ja/plugins/webhook/)、[Full Content Selectors](/ja/plugins/full-content/)：公式 Desktop と Docker に同梱され、アップロード不要。
+- [リリースノート](/ja/release-notes/)：v0.4.1、v0.4.0 と過去版。
+- [ライセンス FAQ](/ja/license/)：BUSL-1.1、Change Date と商用ライセンス。
 
-## 実行環境
+## 実行方式
 
-Dibao は Mac mini、NAS、自宅サーバー、VPS など Docker を継続実行できる host に向いています。LAN や private VPN の中だけで使え、公開 internet に出す必要はありません。
+Desktop はサーバー構築なしで Windows／Mac に導入できます。Docker は NAS、自宅サーバー、VPS に適し、Web／PWA から利用します。LAN／私設 VPN 内でも使え、PWA のオフライン起動には安全なコンテキストが必要です。
 
-複数ユーザーのチーム利用、公式ホスティング、SNS follow、コメント、購読外コンテンツの推薦、cloud sync、offline full-article archive は提供していません。full-content fetching は feed ごとに明示的に有効化する Web 記事本文補完機能であり、offline archive system ではありません。
+Desktop と Docker の DB は独立しています。別環境からのインポート、遠隔接続、多端末同期は未対応です。チーム協業、公式ホスティング、SNS フォロー、購読外コンテンツの推薦も提供しません。
 
-## データは手元に残る
+## データの保存
 
-Feed、記事、状態、行動 event、推薦 profile、embedding provider 設定、recommendation v3 memory、plugin package、index 状態は SQLite と永続 data directory に保存されます。既定の Compose は `/data` を local `./data` に map します。
+フィード、記事、行動、興味プロフィール、ベクトル、プラグインデータと鍵は永続ディレクトリーに保存します。Docker の既定は `./data:/data`、Desktop はアプリ本体と別保存です。ブラウザーのコピーは端末キャッシュで、完全バックアップではありません。

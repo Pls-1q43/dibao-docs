@@ -5,6 +5,8 @@ description: 为 Dibao 选择 Ollama、SiliconFlow、Gemini 或 OpenAI-compatibl
 
 Dibao 没有强制绑定任何 AI 服务。你可以先跳过 provider，只用基础排序；也可以接入本地模型、免费额度或免费层的 embedding provider，让推荐更像“按你的兴趣整理过的 RSS”。
 
+桌面版与同机 Ollama 使用 `http://127.0.0.1:11434`；Docker Desktop 访问宿主机通常用 `http://host.docker.internal:11434`。模型需要单独安装，邸报桌面安装包不包含模型。
+
 ## 先按部署环境选择
 
 | 你的部署方式 | 推荐选择 | 原因与参数 |
@@ -33,8 +35,8 @@ ollama pull bge-m3
 
 | Provider | 适合谁 | Dibao 里怎么填 |
 | --- | --- | --- |
-| [SiliconFlow](https://cloud.siliconflow.cn/i/4wjbYmMH) | 国内访问更方便，支持 OpenAI-compatible API。优先推荐 `BAAI/bge-m3`：免费，没有日额度上限，按 RPM / TPM 限速；当前 L0 级别为 2,000 RPM、500,000 TPM。 | 类型：`OpenAI-compatible`<br>Base URL：`https://api.siliconflow.cn/v1`<br>Model：`BAAI/bge-m3`<br>Dimension：`1024`<br>API Key：硅基流动控制台创建 |
-| Gemini | 有 Google AI Studio / Gemini API key，想用 Google 免费层。Gemini embedding 也是免费的，免费层适合日常个人 RSS；按每天约 1,000 次请求规划更稳妥。 | 类型：`OpenAI-compatible`<br>Base URL：`https://generativelanguage.googleapis.com/v1beta/openai/`<br>Model：`gemini-embedding-001`<br>Dimension：`768`<br>API Key：Google AI Studio 创建 |
+| [SiliconFlow](https://cloud.siliconflow.cn/i/4wjbYmMH) | 支持 OpenAI-compatible embedding；示例为 `BAAI/bge-m3`，以控制台当前可用模型和额度为准。 | 类型：`OpenAI-compatible`<br>Base URL：`https://api.siliconflow.cn/v1`<br>Model：`BAAI/bge-m3`<br>Dimension：`1024`<br>API Key：硅基流动控制台创建 |
+| Gemini | 使用 Gemini API 的 OpenAI-compatible embedding；费用、免费层与限速以当前账户为准。 | 类型：`OpenAI-compatible`<br>Base URL：`https://generativelanguage.googleapis.com/v1beta/openai/`<br>Model：`gemini-embedding-001`<br>Dimension：`768`<br>API Key：Google AI Studio 创建 |
 
 免费额度、免费层、模型价格、限速和可用地区会变化。大量使用前请查看对应服务当前页面。
 
@@ -43,3 +45,5 @@ ollama pull bge-m3
 进入 `设置` -> `推荐 provider`，选择类型并填写 Base URL、Model、Dimension、API Key，然后先 `测试连接`，再设为当前 Provider。
 
 更换模型或维度后，需要重新生成 embedding。Dibao 会保留旧阅读数据，但不同模型的向量不能直接混用。Provider 不可用时，Dibao 仍可阅读 RSS，只是推荐会退回基础排序。
+
+当前接口参考：[SiliconFlow Embeddings](https://siliconflow.readme.io/reference/createembedding)、[Gemini OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai)、[Gemini 价格](https://ai.google.dev/gemini-api/docs/pricing)。

@@ -1,22 +1,28 @@
 ---
 title: Plugin Installation
-description: Install, update, verify signatures, and preserve Dibao 0.3 third-party plugins.
+description: Install, update, verify signatures, and preserve Dibao 0.4 third-party plugins.
 ---
 
-Last updated: 2026-08-11
+Last updated: 2026-10-11
 
-This guide is for Dibao administrators installing third-party plugins. In 0.3, server plugins run in isolated Node host processes and web plugins render in sandboxed iframes, but third-party server plugins are still trusted local code. Dibao does not claim hostile-code sandboxing. Install only from sources you trust.
+This guide is for Dibao administrators installing third-party plugins. In 0.4, server plugins run in isolated Node host processes and web plugins render in sandboxed iframes, but third-party server plugins are still trusted local code. Dibao does not claim hostile-code sandboxing. Install only from sources you trust.
+
+## v0.4.1 Compatibility And Desktop
+
+Bundled Daily Brief, Webhook, and Full Content Selectors remain at plugin version `0.1.1`, now with an upper compatibility bound of `<0.5.0`. They ship with official Desktop and Docker distributions. Older third-party plugins declaring `<0.4.0` become `incompatible`; authors must test and publish a compatible version.
+
+Desktop backups include plugin packages, data, and keys. A `.dibao-plugin` package alone is not a data backup. Web / PWA offline caches do not run server plugin APIs; outbound requests and Webhook deliveries still need a connection on Desktop.
 
 ## Official And Third-Party Plugins
 
-Dibao 0.3.1 bundles [Daily Brief](/en/plugins/daily-brief/), [Webhook](/en/plugins/webhook/), and [Full Content Selectors](/en/plugins/full-content/) in the official Docker image. Official plugins do not require uploading a .dibao-plugin file and cannot be uninstalled like third-party plugins. Open Settings -> Plugins, find the official plugin, and enable it. The install flow below applies to third-party plugins.
+Dibao 0.4.1 bundles [Daily Brief](/en/plugins/daily-brief/), [Webhook](/en/plugins/webhook/), and [Full Content Selectors](/en/plugins/full-content/) in the official Docker image. Official plugins do not require uploading a .dibao-plugin file and cannot be uninstalled like third-party plugins. Open Settings -> Plugins, find the official plugin, and enable it. The install flow below applies to third-party plugins.
 
 ## Before Installing
 
 - Source: verify the developer, release page, version, and changelog.
 - Signature: prefer signed packages and make sure the key id maps to a trusted public key.
 - Capabilities: confirm requested capabilities match the feature.
-- API stability: Stable APIs are suitable for long-term use; Beta APIs may change during 0.3.x.
+- API stability: Stable APIs are suitable for long-term use; Beta APIs may change during 0.4.x.
 - Server-code risk: enabling a plugin executes its server entry.
 
 ## Recommended Flow: Upload `.dibao-plugin`
@@ -35,8 +41,8 @@ Dibao uses Ed25519 signatures. Administrators provide trusted public keys throug
 
 Automation can use:
 
-- [`POST /api/plugins/install`](./api-contract.md#post-apipluginsinstall)
-- [`POST /api/plugins/install/upload`](./api-contract.md#post-apipluginsinstallupload)
+- [`POST /api/plugins/install`](/en/reference/#plugin-install)
+- [`POST /api/plugins/install/upload`](/en/reference/#plugin-install-upload)
 
 Recommended update metadata:
 
@@ -57,7 +63,7 @@ When `/data` is mounted correctly, plugin packages and data survive image upgrad
 - `/data/plugins/data/<plugin-id>`
 - SQLite tables: `plugin_installs`, `plugin_capability_grants`, `plugin_settings`, `plugin_kv`, `plugin_migrations`, `plugin_update_checks`, `plugin_secrets`, `plugin_deliveries`
 
-Official Daily Brief, Webhook, and Full Content Selectors plugins are scanned from the 0.3.1 image. Third-party plugins remain in the data volume.
+Official Daily Brief, Webhook, and Full Content Selectors plugins are scanned from the 0.4.1 image. Third-party plugins remain in the data volume.
 
 ## Updates And Rollback
 

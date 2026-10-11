@@ -1,15 +1,15 @@
 ---
 title: 公式 Webhook プラグイン
-description: Dibao 0.3.1 の公式 Webhook プラグインで、記事、推薦、更新、Daily Brief のイベントを外部 HTTP endpoint に送信する。
+description: Dibao 0.4.1 の公式 Webhook プラグインで、記事、推薦、更新、Daily Brief のイベントを外部 HTTP endpoint に送信する。
 ---
 
-Webhook は Dibao `0.2.0` から提供され、Dibao `0.3.1` の公式 Docker image に同梱される公式プラグインです。bundled plugin version は `0.1.1` です。プラグイン ID は `app.dibao.webhook` です。Dibao 内部イベントを監視し、ルールに従って URL、Query、Body、Header をレンダリングして、外部 HTTP endpoint にリクエストを送信します。
+Webhook は Dibao `0.2.0` から提供され、Dibao `0.4.1` の公式 Docker image に同梱される公式プラグインです。bundled plugin version は `0.1.1` です。プラグイン ID は `app.dibao.webhook` です。Dibao 内部イベントを監視し、ルールに従って URL、Query、Body、Header をレンダリングして、外部 HTTP endpoint にリクエストを送信します。
 
 n8n、Make、Zapier、自作スクリプト、チャット bot、監視システム、アーカイブサービスとの連携に使えます。Webhook は Dibao の公開入口を作るものではありません。Dibao を LAN や private VPN の内側で使っている場合、Webhook のためだけに Dibao をインターネットへ公開する必要はありません。
 
 ## プラグインを有効化する
 
-1. Dibao `0.3.1` にアップグレードします。
+1. Dibao `0.4.1` にアップグレードします。
 2. `Settings` を開き、`Plugins` タブに移動します。
 3. 公式 `Webhook` プラグインを探します。
 4. 有効化します。有効化後、設定画面に `Webhook` タブが表示されます。

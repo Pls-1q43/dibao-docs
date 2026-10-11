@@ -1,16 +1,22 @@
 ---
 title: クイックインストール
-description: Docker Compose で Dibao v0.3.1 をインストールする。
+description: Desktop または Docker Compose で Dibao v0.4.1 を導入する。
 ---
 
-現在の安定版 `v0.3.1` は Docker Compose での実行を推奨します。次の内容で `compose.yaml` を作成します。
+## Desktop と Docker
+
+Windows／Mac の個人利用は、サーバー不要の [デスクトップ版](/ja/desktop-install/) を参照してください。NAS、自宅サーバー、VPS は下の Docker Compose を使います。
+
+## Docker Compose
+
+現在の安定版 `v0.4.1` は Docker Compose での実行を推奨します。次の内容で `compose.yaml` を作成します。
 
 ```yaml
 name: dibao
 
 services:
   dibao:
-    image: ghcr.io/pls-1q43/dibao:v0.3.1
+    image: ghcr.io/pls-1q43/dibao:v0.4.1
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -35,10 +41,12 @@ docker compose up -d
 ## 初回起動後
 
 1. 所有者アカウントを作成します。
-2. OPML をインポートするか、最初の RSS / Atom URL を追加します。
+2. OPML または RSS / Atom を追加します。「あとで追加」でスキップもできます。
 3. Provider 設定をスキップするか、[推奨 Provider](../providers/) を参考に embedding を設定します。
 4. Recommended と Latest で読み始めます。
 5. Daily Brief や Webhook などの公式 plugin は setup または Settings から有効化できます。
+
+歓迎画面で言語を選べます。フィードと AI は後で設定できます。Web の保存は [オフライン読書](/ja/offline-reading/)、既存環境の更新は [バックアップと更新](/ja/backup-upgrade/) を参照してください。
 
 ## ソースからビルド
 
@@ -61,4 +69,4 @@ environment:
 
 ## Background worker
 
-v0.3.1 の既定 entrypoint は HTTP process と独立 worker process を起動します。worker は feed refresh、embedding、ranking、plugin task、full-content background work を処理します。独自 Compose では `DIBAO_SQLITE_JOURNAL_MODE: DELETE` を維持し、Docker process 間の bind mount + SQLite WAL visibility 問題を避けてください。
+v0.4.1 の既定 entrypoint は HTTP process と独立 worker process を起動します。worker は feed refresh、embedding、ranking、plugin task、full-content background work を処理します。独自 Compose では `DIBAO_SQLITE_JOURNAL_MODE: DELETE` を維持し、Docker process 間の bind mount + SQLite WAL visibility 問題を避けてください。

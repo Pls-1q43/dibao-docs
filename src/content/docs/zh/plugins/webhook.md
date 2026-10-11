@@ -1,15 +1,15 @@
 ---
 title: Webhook 官方插件
-description: 使用 Dibao 0.3.1 官方 Webhook 插件把文章、推荐、刷新和 Daily Brief 事件投递到外部 HTTP endpoint。
+description: 使用 Dibao 0.4.1 官方 Webhook 插件把文章、推荐、刷新和 Daily Brief 事件投递到外部 HTTP endpoint。
 ---
 
-Webhook 是 Dibao `0.2.0` 开始提供、并随 `0.3.1` 官方 Docker 镜像携带的官方插件，插件 ID 为 `app.dibao.webhook`，当前随镜像分发的插件版本为 `0.1.1`。它可以监听 Dibao 内部事件，按你配置的规则渲染 URL、Query、Body 和 Header，然后把请求投递到外部 HTTP endpoint。
+Webhook 是 Dibao `0.2.0` 开始提供、并随 `0.4.1` 官方 Docker 镜像携带的官方插件，插件 ID 为 `app.dibao.webhook`，当前随镜像分发的插件版本为 `0.1.1`。它可以监听 Dibao 内部事件，按你配置的规则渲染 URL、Query、Body 和 Header，然后把请求投递到外部 HTTP endpoint。
 
 Webhook 适合把 Dibao 接到 n8n、Make、Zapier、自建脚本、聊天机器人、监控系统或归档服务。它不会替你创建公开入口；如果 Dibao 原本只在局域网或 VPN 内使用，不需要为了 Webhook 把 Dibao 暴露到公网。
 
 ## 启用插件
 
-1. 升级到 Dibao `0.3.1`。
+1. 升级到 Dibao `0.4.1`。
 2. 打开 `设置`，进入 `插件` Tab。
 3. 在官方插件列表中找到 `Webhook`。
 4. 点击启用。启用后，设置页会出现 `Webhook` Tab。

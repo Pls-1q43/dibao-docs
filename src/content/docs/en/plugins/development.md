@@ -1,11 +1,19 @@
 ---
 title: Plugin Development
-description: Dibao 0.3 plugin manifest, localization, full-content extractors, Host API, iframe bridge, packaging, signing, and release checks.
+description: Dibao 0.4 plugin manifest, localization, full-content extractors, Host API, iframe bridge, packaging, signing, and release checks.
 ---
 
-Last updated: 2026-08-11
+Last updated: 2026-10-11
 
-This guide is for third-party plugin developers. Dibao 0.3 is an ecosystem-platform release for trusted administrator-installed plugins. Plugins can extend server tasks, hooks, settings pages, web UI, and full-content extractors, but they are trusted local code. Dibao 0.3 does not claim to safely run arbitrary malicious code.
+This guide is for third-party plugin developers. Dibao 0.4 is an ecosystem-platform release for trusted administrator-installed plugins. Plugins can extend server tasks, hooks, settings pages, web UI, and full-content extractors, but they are trusted local code. Dibao 0.4 does not claim to safely run arbitrary malicious code.
+
+## v0.4 Runtime Boundaries
+
+This guide follows v0.4.1 implementation and `packages/plugin-sdk`; core plugin contracts carry over from 0.3. All three official plugins remain at `0.1.1` with an upper compatibility bound of `<0.5.0`. Set third-party compatibility based on tests, not just a changed manifest range.
+
+Desktop and Docker share server plugin contracts. Desktop privileges are not exposed to plugin iframes: do not use `window.dibaoDesktop` or invoke update, backup, or filesystem privileges from external pages. Web / PWA offline caches do not provide server plugin APIs, and disconnected delivery cannot be guaranteed.
+
+Disabled plugins do not serve assets. Document assets including HTML and SVG/XML receive CSP and sandbox protection. Use only plugin-local routes in `pluginApi.path`, such as `/state`, without cross-plugin paths, absolute URLs, traversal, or encoded bypasses. The UI should check `event.source === window.parent`, plugin ID, and request ID before consuming bridge responses.
 
 ## Security Model
 
@@ -27,7 +35,7 @@ This guide is for third-party plugin developers. Dibao 0.3 is an ecosystem-platf
     "name": "Reader Tools",
     "version": "0.1.0",
     "publisher": "Example",
-    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.4.0" },
+    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.5.0" },
     "entry": { "server": "server/index.mjs", "web": "web/index.html" },
     "capabilities": ["settings:plugin", "files:plugin-data", "jobs:write"],
     "migrations": [
@@ -47,7 +55,7 @@ This guide is for third-party plugin developers. Dibao 0.3 is an ecosystem-platf
 }
 ```
 
-Use reverse-domain IDs and a bounded compatibility range such as `<0.4.0`.
+Use reverse-domain IDs and a bounded compatibility range such as `<0.5.0`.
 
 ### Plugin Localization
 
@@ -118,7 +126,7 @@ Beta:
 - `fullContent.extractor`
 - diagnostics and recommendation transparency APIs
 
-Beta fields and semantics may change during 0.3.x. Long-lived plugins should use manifest migrations for durable schema changes instead of relying only on `database.defineTable`.
+Beta fields and semantics may change during 0.4.x. Long-lived plugins should use manifest migrations for durable schema changes instead of relying only on `database.defineTable`.
 
 ## Server Entry
 
@@ -204,9 +212,9 @@ The host validates iframe source, `pluginId`, and `requestId`.
 
 ```sh
 dibao-plugin create ./my-plugin
-dibao-plugin validate ./my-plugin
-dibao-plugin pack ./my-plugin --out my-plugin.dibao-plugin
-dibao-plugin sign my-plugin.dibao-plugin \
+node packages/plugin-cli/dist/index.js validate ./my-plugin
+node packages/plugin-cli/dist/index.js pack ./my-plugin --out my-plugin.dibao-plugin
+node packages/plugin-cli/dist/index.js sign my-plugin.dibao-plugin \
   --private-key private.pem \
   --public-key public.pem \
   --key-id my-key \
@@ -227,7 +235,7 @@ With `/data` mounted, these survive image upgrades:
 - `/data/plugins/data/<plugin-id>`
 - SQLite tables: `plugin_installs`, `plugin_capability_grants`, `plugin_settings`, `plugin_kv`, `plugin_migrations`, `plugin_update_checks`, `plugin_secrets`, `plugin_deliveries`
 
-Official Daily Brief, Webhook, and Full Content Selectors plugins are scanned from the bundled 0.3.1 image. Third-party plugins remain in the data volume.
+Official Daily Brief, Webhook, and Full Content Selectors plugins are scanned from the bundled 0.4.1 image. Third-party plugins remain in the data volume.
 
 ## Updates And Rollback
 

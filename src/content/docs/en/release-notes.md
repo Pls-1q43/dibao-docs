@@ -1,7 +1,131 @@
 ---
 title: Release Notes
-description: Dibao v0.3.1, v0.3.0, v0.2.1, v0.2.0, and earlier release notes.
+description: Dibao v0.4.1, v0.4.0, and historical release notes.
 ---
+
+## v0.4.1
+
+Release date: 2026-10-11
+
+GitHub Release: [Dibao v0.4.1](https://github.com/Pls-1q43/Dibao/releases/tag/v0.4.1)
+
+v0.4.1 introduces standalone Windows and macOS desktop apps: install Dibao and use it locally without deploying a server. Desktop keeps the existing reader, feeds and recommendations, and adds tray-based background operation, local offline reading, backup and recovery, and desktop updates. First-run setup, shutdown saves and recovery are also improved. Docker, Web and PWA deployments remain available.
+
+### New Features
+
+- **Standalone desktop apps.** Windows x64 EXE, Intel Mac DMG and Apple Silicon Mac DMG installers include the runtime; no separate Node.js, Docker or database installation is needed. Create an account on first use. AI services are optional and no models are bundled.
+- **Tray and background operation.** Closing the window keeps feed fetching active. Reopen the reader from the system tray or menu bar; choose Quit to stop the app. Launch at login is off by default and, when enabled, runs silently without opening a window.
+- **Local offline reading.** Open the reader, read articles already stored on this computer and record reading state without internet. Desktop does not switch to a PWA cache subset. New feed fetches, unsaved external resources and AI services still need network access.
+- **Manual backup and recovery.** Settings → About → Backup and recovery can create a complete backup, select a dated restore point and show operation results. Backups include feeds, articles and reading state, settings, existing vectors, plugin data and keys, and login/client state. Confirm and restart to complete the operation. Recovery saves the current data separately first; changes made after the restore point may be rolled back.
+- **Desktop updates and upgrade protection.** Check for updates in Settings → About. On Windows, confirm the download and then Restart and update. On Mac, download the new DMG, quit fully and replace the app. Upgrades back up data first and stop if backup fails. Normal quit does not install updates; stable users do not receive prereleases and automatic downgrade is disabled.
+
+### Improvements
+
+- **More flexible setup.** Choose Simplified Chinese, Japanese or English on the welcome screen; setup, plugins and the reader retain it. Add later skips RSS/OPML setup so a feed is not required to finish onboarding.
+- **Data independent of installation.** Moving the installation, replacement installs, reinstalls and normal uninstall do not intentionally delete local data. Open the data folder from Settings → About. The three latest successful pre-upgrade backups are retained; manual backups and pre-restore snapshots are not automatically deleted.
+- **Separate desktop and self-hosted controls.** Desktop no longer carries a test-build label. Backup, data-folder, login-startup and app-install controls appear only in Desktop. Docker, Web and PWA keep their reading and offline workflows without desktop-only entries.
+
+### Fixes
+
+- **Unclear backup/recovery feedback.** Added confirmation, working, cancellation, completion and failure states. Restore is explicitly disabled when no valid backup is available, instead of appearing unresponsive.
+- **Damaged backups blocking recovery.** One damaged snapshot no longer prevents access to healthy restore points. Interrupted recovery verifies integrity before replacing live data and rejects missing databases, invalid paths or altered files.
+- **Incorrect startup data detection.** Newly generated browser preferences are no longer mistaken for an existing database. If a previously used database is missing or empty, startup stops and offers recovery rather than silently creating an empty replacement. Residual files are preserved before recovery.
+- **Windows failing to start after recovery.** Cold backup, recovery and version checks now finish before the browser opens its data directory, avoiding directory locks and startup writes during recovery. Existing login-data paths are unchanged.
+- **Write conflicts during quit and update.** Pending reading progress is saved, background tasks and plugin processes stop, then the database closes. Unsaved settings or an active data upgrade block unsafe backup, recovery and update actions.
+- **Security and runtime dependencies.** Updated HTTP/runtime dependencies with security fixes and removed unused package-manager tools from Docker images. Hardened desktop permission and plugin boundaries so external pages cannot invoke privileged desktop operations. Docker runtime images contain neither Electron nor the desktop service runtime.
+
+### Upgrade Impact And Migrations
+
+From **v0.4.0 to v0.4.1**: no new SQL migrations or mandatory derived-data rebuilds, and **no embedding recomputation**. Direct upgrades from earlier releases still apply pending historical migrations and required data upgrades. Desktop backup/version protection applies to this computer's data; it does not automatically import a NAS or another deployment.
+
+### Downloads And Upgrade
+
+- [Windows x64 EXE installer](https://github.com/Pls-1q43/Dibao/releases/download/v0.4.1/Dibao-0.4.1-win-x64.exe)
+- [Intel Mac drag-and-drop DMG](https://github.com/Pls-1q43/Dibao/releases/download/v0.4.1/Dibao-0.4.1-mac-x64.dmg)
+- [Apple Silicon Mac drag-and-drop DMG](https://github.com/Pls-1q43/Dibao/releases/download/v0.4.1/Dibao-0.4.1-mac-arm64.dmg)
+- Docker: `ghcr.io/pls-1q43/dibao:v0.4.1`, `linux/amd64` and `linux/arm64`.
+
+Desktop data lives in `%LOCALAPPDATA%\Dibao` on Windows or `~/Library/Application Support/Dibao` on Mac. See the [desktop guide](/en/desktop-install/) for installation, updates and recovery. Future formal releases will also include all three installers and Docker.
+
+For a new Docker installation, use the [Compose example](/en/quick-install/). Before upgrading, sync pending client offline actions, stop the old container and back up the entire `/data`, not only SQLite's main file. Keep the existing volume and environment, set the image to `v0.4.1`, then run `docker compose pull && docker compose up -d`. Check `/api/system/health` for `data.ok: true` and `data.version: "0.4.1"`; authenticated `/api/system/upgrade/status` must show completed or not-required upgrades and `blocking: false`.
+
+To roll back, stop the new version, restore the full pre-upgrade backup into a clean directory/new volume, then start the older image. Do not open newer data with an old version or overlay a backup onto newer WAL files.
+
+### Known Limitations
+
+- Packages remain unsigned and your OS may warn about or block first launch. Use only this Release's downloads and follow system confirmation prompts; do not disable security checks. Mac currently needs manual replacement and unsigned login-item registration may fail.
+- Native Windows ARM, NAS imports, remote-instance connections and multi-device sync are not supported. Desktop offline reading uses the local database; it is not offline synchronization with a server.
+- Third-party server plugins remain trusted local code; install only plugins you trust. Vendor-unfixed dependency findings and the scope of checks are documented in the [release audit](https://github.com/Pls-1q43/Dibao/blob/main/docs/release-audit-v0.4.1.md).
+
+## v0.4.0
+
+Release date: 2026-09-07
+
+GitHub Release: [Dibao v0.4.0](https://github.com/Pls-1q43/Dibao/releases/tag/v0.4.0)
+
+v0.4.0 adds a local reading copy you can take offline, plus better ways to find the next article: related stories below the reader and personalized suggestions after a like. It also makes recommendation pagination, connection recovery, plugin boundaries, and version upgrades more reliable.
+
+### Offline Reading, On Your Terms
+
+- **Off by default, enabled per client.** Turn on offline reading in Settings while connected to prepare the cache. The switch and article target belong to the current browser or installed PWA, not your server account. Enabling it on a desktop does not enable it on your phone.
+- Dibao saves ranked unread recommendations, with a **default target of 200 articles, adjustable from 50 to 1,000 in steps of 50**. It also keeps up to 200 read-later copies and 20 recently opened articles. **The 200-article limit applies only to offline read-later copies, not your server-side read-later list.** Overlapping articles are deduplicated. Available bodies, recommendation inventory, and browser storage determine the actual count; the target is not a download guarantee.
+- When the network or server becomes unavailable, Dibao offers an explicit switch if cached articles are available. It does not silently replace online results with a cache. An offline banner identifies the mode; the status light opens details about cached articles, the snapshot, and pending or failed actions. Once connected, choose “Exit offline mode” in that panel to check the connection and sync before returning online. Connectivity alone does not force a switch. Reopening the app restores your previously selected offline mode.
+- Read cached bodies and queue favorites, likes, read-later changes, read status, and reading progress for synchronization. Failed syncs can be retried; an expired session requires signing back into the same account. Sync pending actions before disabling offline reading, clearing the cache, or signing out, and heed the warning about losing unsynced actions.
+- PWA updates retain the resources needed to reopen the app more reliably. Cross-tab sign-out and cache cleanup also prevent old requests from repopulating revoked image caches.
+
+### Reader And Recommendations
+
+- The reader offers up to **5 related articles**, excluding the current article, duplicates in its groups, hidden articles, and articles marked not interested. A successful like can also reveal next-read suggestions that combine your personal recommendations with the current article's topic.
+- “More” opens a paginated related-article search with article-state filters. By default it considers up to 500 nearest neighbors and retains results with **similarity strictly greater than 0.35**, shown 50 per page. This threshold applies to expanded search, not the five-item preview, so the two lists need not match exactly. Discovery requires an existing active embedding index and a vector for the current article; unavailable prerequisites are reported rather than triggering on-demand embedding recomputation. These online discovery queries are unavailable in offline mode.
+- Recommendation pages use a fixed session sequence to reduce duplicates and omissions when background ranking changes. Offline pagination also keeps its place as local article states change. Scrolling past a saved or opened article no longer incorrectly treats it as ignored.
+- Feed refresh is less likely to stall, and upgrades avoid repeated expensive candidate and full-text queries. Upgrade duration still depends on your dataset and hardware; there is no fixed completion-time guarantee.
+- Settings → Reading controls whether scrolling past an untouched article marks it ignored. Related articles may include read or liked items; personalized next-read suggestions exclude read, favorited, and liked items.
+
+### Sentry Diagnostics
+
+Error and performance telemetry is enabled by default and can be disabled during setup or in Settings. Release images include server and browser Sentry configuration. Browser source maps are uploaded during the build and `.map` files are removed from the public image. Configuration comes from a private build secret; the authorization token is not included in the runtime image. Release checks verify reporting and opt-out suppression, exposing only booleans and acceptance status rather than private settings.
+
+### Security And Limits
+
+- Hardened authentication and write-request origin checks, static/API path boundaries, plugin bridge paths, and address validation for controlled outbound requests. Disabled plugins no longer serve assets; plugin documents, including HTML and SVG/XML, receive sandbox protection.
+- Frontend plugin isolation is not a server-side plugin sandbox. Third-party server plugins remain trusted local code; install only plugins you trust.
+- **Outside localhost/loopback, reliable PWA offline startup requires an HTTPS secure context.** Opening a NAS through a plain HTTP LAN address is not equivalent to having an offline-capable PWA. Configure HTTPS, prepare the cache, and test with the network disconnected.
+- Mobile operating systems can suspend background pages, interrupt downloads, or reclaim browser storage. Persistent-storage permission may not be granted. Keep the app in the foreground while preparing or syncing and check the available article count before leaving. Images are cached on a best-effort basis; external links, videos, every image, and bodies not yet fetched are not guaranteed offline. A fresh installation without a prepared cache cannot open uncached articles offline.
+- Local copies are neither a backup nor cross-device cloud sync. Clearing site data, uninstalling the PWA, or storage eviction can remove cached content and unsynced actions.
+
+### Upgrade Impact And Migrations
+
+There is one new core SQLite migration from **v0.3.1 to v0.4.0**:
+
+- `027_recommendation_sessions.sql` adds `recommendation_sessions`, `recommendation_session_items`, and indexes for stable recommendation pagination. Direct upgrades from older releases also apply any earlier pending migrations automatically.
+
+Database migrations run automatically. Existing databases that need updated recommendation data then enter an **automatic blocking data-upgrade screen**. Dibao replays existing behavior, rebuilds interest profiles and related derived data, recalculates eligible recommendations, and removes superseded recommendation contexts only after success. Normal features remain unavailable until this completes. Failures remain visible and can be retried from the upgrade screen; do not delete upgrade markers to bypass the process.
+
+**This upgrade does not recompute embeddings or require new embedding-service calls for existing articles.** It reuses stored vectors. After normal operation resumes, embedding generation for new articles still follows your provider settings.
+
+### Docker Installation, Backup, And Rollback
+
+Version image: `ghcr.io/pls-1q43/dibao:v0.4.0`. For a new installation, use the [English README Compose example](/en/quick-install/). Persist `/data`, for example with `./data:/data`, and keep the database at `/data/dibao.sqlite`; do not store your only copy in the container's writable layer.
+
+For an existing Compose installation, sync offline actions on each client, stop the service, back up the whole data directory, and update the Compose image tag. These commands assume `./data:/data`; adapt the backup for a named volume or another path.
+
+```bash
+docker compose stop
+tar czf "dibao-data-before-v0.4.0-$(date +%Y%m%d-%H%M%S).tgz" -C data .
+# Set compose.yaml image to ghcr.io/pls-1q43/dibao:v0.4.0
+docker compose pull
+docker compose up -d
+docker compose ps
+```
+
+Do not copy only the main `.sqlite` file while SQLite is writing. Stop the service and back up all of `/data`, or use a consistent SQLite backup. The default Docker entrypoint manages both HTTP and worker processes; retain existing environment settings and mounts.
+
+Verify both conditions after upgrading:
+
+1. `GET /api/system/health` returns `data.ok: true` and `data.version: "0.4.0"`. This proves basic health, **not completion of the data upgrade**.
+2. While signed in, check `GET /api/system/upgrade/status`. An existing-data upgrade should finish with `data.id: "recommendation-contract"`, `data.state: "completed"`, and `data.blocking: false`. A fresh empty database may report `not_required` with `blocking: false`. During schema migration, this endpoint may first report core migration status; continue until it reports the derived-data result. Confirm the upgrade screen closes and normal reading works.
+
+To roll back, stop v0.4.0, preserve the failed installation for diagnosis, restore the **complete pre-upgrade backup** into a clean directory or new volume, and start the previous image, such as `ghcr.io/pls-1q43/dibao:v0.3.1`, with that restored mount. Do not overlay an old backup onto a directory containing newer WAL files, or run an older image against the upgraded database. Rollback loses changes made after the backup; server backups do not contain unsynced browser actions.
 
 ## v0.3.1
 
@@ -254,8 +378,8 @@ To roll back, stop the v0.2.0 container, restore the pre-upgrade SQLite database
 
 - Webhook guide: https://docs.dibao.app/zh/plugins/webhook/
 - Plugin development guide: https://docs.dibao.app/zh/plugins/development/
-- Plugin installation docs: [`docs/plugin-installation.en-US.md`](./plugin-installation.en-US.md)
-- Plugin development docs: [`docs/plugin-development.en-US.md`](./plugin-development.en-US.md)
+- Plugin installation docs: [`docs/plugin-installation.en-US.md`](/en/plugins/installation/)
+- Plugin development docs: [`docs/plugin-development.en-US.md`](/en/plugins/development/)
 
 ### Known Limitations
 

@@ -1,38 +1,54 @@
 ---
-title: Developer Docs
-description: Dibao 0.3 developer entry point, repository structure, and public contracts.
+title: Developer Documentation
+description: Dibao v0.4.1 core, Desktop, offline reading, APIs, migrations, and plugin development.
 ---
 
-Developer documentation is maintained as public reference from `0.2.0` onward. The current line is `0.3.x`, covering repository structure, APIs, database schema, recommendation algorithms, plugins, full-content fetching, runtime performance, and release process.
+The public release is `v0.4.1`, corresponding to the main project's complete release on `main`. Follow the repository's current version-line and release rules when choosing development branches; older 0.2 / 0.3 guidance does not establish current release state.
 
 ## Repository Structure
 
-- `apps/web`: Web app, PWA, settings, feed management, full-content preview, and plugin iframe host.
-- `apps/server`: APIs, RSS fetching, full-content fetching, background jobs, recommendation maintenance, plugin host, and authentication.
-- `packages/db`: database types, migrations, and shared data contracts.
-- `packages/plugin-sdk`: plugin manifest, capabilities, events, signatures, and package validation.
-- `packages/plugin-cli`: third-party plugin template, validation, packaging, and signing commands.
-- `plugins/official`: bundled official plugins: Daily Brief, Webhook, and Full Content Selectors.
-- `docs`: public product, engineering, and developer reference.
+- `apps/desktop`: Electron main/preload, local server runtime, updates, backup/recovery.
+- `apps/web`: React, reader, PWA, offline cache, plugin iframe host.
+- `apps/server`: Fastify API, authentication, feed/content fetching, worker jobs, plugin host.
+- `packages/db`: SQLite repositories, migrations, vector storage.
+- `packages/ranking`: interest profiles and recommendation ranking.
+- `packages/plugin-sdk` / `packages/plugin-cli`: manifest validation, capabilities, packaging and signing.
+- `plugins/official`: Daily Brief, Webhook, Full Content Selectors.
 
-Local planning notes, execution records, temporary validation evidence, and machine-specific instructions do not belong in public docs.
+## Development And Validation
 
-## Current 0.3 Focus
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+git diff --check
+```
 
-- Recommendation v3 memory: `user_representation_snapshots`, `recommendation_exposures`, and `exploration_attempts`.
-- Recommended lists stay closer to the active rank context, with capped fallback batches to avoid large unsorted pages taking over.
-- Foreground interaction paths avoid synchronous reranking, heavy diagnostics, and broad writes; background worker chunks ranking, embeddings, feed refresh, and plugin work.
-- Feeds support `feed_only` and `fetch_full_content`; article web pages are fetched only when explicitly enabled for a feed.
-- Plugin manifests support localized strings, iframe/bridge APIs can read the current locale, and full-content extractors are a Beta plugin extension point.
+Use `npm run dev:server` and `npm run dev:web` for development. Desktop uses `npm run build:desktop`, `npm run desktop:package`, and `npm run desktop:smoke`. Local packaging does not replace installed upgrade checks on each target OS.
 
-## Public Contracts
+## v0.4 Contracts
 
-- API routes and request/response shapes evolve through the API contract.
-- Database structure evolves through schema migrations and database schema docs.
-- Plugin manifest, capabilities, hooks, UI slots, full-content extractors, and iframe bridge must stay documented.
-- Plugin Stable/Beta APIs, trusted signing keys, persistence paths, and official plugin inventory must track the `0.3` implementation.
-- Recommendation docs explain product behavior and should not be overstated as unimplemented UI promises.
+- Recommendation sessions freeze the pagination sequence; `027_recommendation_sessions.sql` stores session positions and score snapshots.
+- Related and personalized discovery read existing vectors, without generating embeddings or reranking the entire library when opening the reader.
+- Web / PWA caches are scoped by origin and user. Offline actions use `clientActionId` for idempotency; actions sync before snapshots refresh.
+- Article opening, actions, and scrolling are latency-sensitive. Profile work, ranking, embeddings, and heavy diagnostics belong in background jobs or explicit cold paths.
+- Desktop reads the local database rather than switching to a PWA subset when disconnected. Save progress, stop background tasks and plugin processes, then close the database on shutdown.
 
-## Compatibility
+## Data Upgrades And Releases
 
-Formal release and hotfix images must use explicit version numbers; user install docs should also use the current recommended version. Cross-version upgrades must preserve SQLite migrations, persistent data, plugin data, and embedding cost boundaries. The 0.3 upgrade does not implicitly require embedding recomputation.
+Do not remove or rewrite shipped migrations. Core migrations use the visible blocking upgrade flow; required derived-data rebuilds keep progress visible and restore normal APIs only after success, then remove obsolete contexts.
+
+v0.4.0 adds the recommendation-session migration and reuses existing embeddings for derived upgrades. v0.4.1 adds no SQL migration or mandatory rebuild. Recomputations that incur embedding costs require an explicit user decision.
+
+Formal releases provide Windows x64 EXE, Intel / Apple Silicon DMG, and Docker amd64 / arm64 from the same version and commit. Validation covers fresh installation, installed upgrades, backup/recovery, and platform permissions. Current desktop packages are unsigned; Mac uses manual app replacement.
+
+## Plugins And APIs
+
+[Plugin Development](/en/plugins/development/) covers Stable / Beta contracts, compatibility, iframe bridge, extractors, signing, and CLI. [API And Database Reference](/en/reference/) lists recent endpoints and persistence boundaries.
+
+Frontend isolation is not hostile server-code sandboxing. Desktop privileges belong to controlled app entry points and are not available to plugin or external pages.
+
+## Implementation Sources
+
+Check `apps/server/src/app.ts`, `reader-discovery-service.ts`, `apps/web/src/api.ts`, `packages/db/migrations`, `packages/plugin-sdk/src/index.ts`, and `apps/desktop/src`. Full engineering source: [v0.4.1 source](https://github.com/Pls-1q43/Dibao/tree/v0.4.1).

@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Dibao Docs",
-      description: "Dibao self-hosted RSS recommendation reader documentation.",
+      description: "Dibao desktop and self-hosted RSS reader documentation.",
       defaultLocale: "zh",
       locales: {
         zh: {
@@ -33,6 +33,9 @@ export default defineConfig({
       sidebar: [
         { slug: "index" },
         { slug: "quick-install" },
+        { slug: "desktop-install" },
+        { slug: "offline-reading" },
+        { slug: "reading" },
         { slug: "providers" },
         { slug: "backup-upgrade" },
         {

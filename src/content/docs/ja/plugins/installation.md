@@ -1,22 +1,28 @@
 ---
 title: プラグインインストール
-description: Dibao 0.3 の third-party plugin install、update、signature verification、persistence。
+description: Dibao 0.4 の third-party plugin install、update、signature verification、persistence。
 ---
 
-Last updated: 2026-08-11
+Last updated: 2026-10-11
 
-この文書はサードパーティプラグインをインストールする Dibao 管理者向けです。0.3 では server plugin は独立 Node host process、Web plugin は sandbox iframe で動作します。ただしサードパーティ server plugin は信頼済みローカルコードです。悪意ある任意コードを安全に実行する sandbox ではありません。信頼できる source だけをインストールしてください。
+この文書はサードパーティプラグインをインストールする Dibao 管理者向けです。0.4 では server plugin は独立 Node host process、Web plugin は sandbox iframe で動作します。ただしサードパーティ server plugin は信頼済みローカルコードです。悪意ある任意コードを安全に実行する sandbox ではありません。信頼できる source だけをインストールしてください。
+
+## v0.4.1 の互換性と Desktop
+
+公式 Daily Brief、Webhook、Full Content Selectors は引き続き `0.1.1` で、互換上限は `<0.5.0` です。公式 Desktop と Docker に同梱します。旧外部プラグインが `<0.4.0` を宣言している場合は `incompatible` になり、作者による検証と互換版の公開が必要です。
+
+Desktop の保存にはプラグインパッケージ、データと鍵を含みます。`.dibao-plugin` だけではデータを保存できません。Web／PWA のオフラインキャッシュはサーバープラグイン API を実行せず、Desktop も外部通信と Webhook 配信には接続が必要です。
 
 ## 公式プラグインとサードパーティプラグイン
 
-Dibao 0.3.1 には [Daily Brief](/ja/plugins/daily-brief/)、[Webhook](/ja/plugins/webhook/)、[Full Content Selectors](/ja/plugins/full-content/) が公式 Docker image に同梱されています。公式プラグインは .dibao-plugin の upload が不要で、サードパーティプラグインのように uninstall できません。Settings -> Plugins で公式プラグインを探して有効化してください。以下の install 手順はサードパーティプラグイン向けです。
+Dibao 0.4.1 には [Daily Brief](/ja/plugins/daily-brief/)、[Webhook](/ja/plugins/webhook/)、[Full Content Selectors](/ja/plugins/full-content/) が公式 Docker image に同梱されています。公式プラグインは .dibao-plugin の upload が不要で、サードパーティプラグインのように uninstall できません。Settings -> Plugins で公式プラグインを探して有効化してください。以下の install 手順はサードパーティプラグイン向けです。
 
 ## インストール前の確認
 
 - Source: developer、release page、version、changelog を確認します。
 - Signature: 署名済み package を優先し、key id が trusted public key に対応していることを確認します。
 - Capabilities: requested capabilities が機能に見合っているか確認します。
-- API stability: Stable API は長期利用向けです。Beta API は 0.3.x で変わる可能性があります。
+- API stability: Stable API は長期利用向けです。Beta API は 0.4.x で変わる可能性があります。
 - Server-code risk: plugin を有効化すると server entry が実行されます。
 
 ## 推奨手順: `.dibao-plugin` upload
@@ -35,8 +41,8 @@ Dibao は Ed25519 signature を使います。管理者は deployment configurat
 
 automation では次の API を使えます。
 
-- [`POST /api/plugins/install`](./api-contract.md#post-apipluginsinstall)
-- [`POST /api/plugins/install/upload`](./api-contract.md#post-apipluginsinstallupload)
+- [`POST /api/plugins/install`](/ja/reference/#plugin-install)
+- [`POST /api/plugins/install/upload`](/ja/reference/#plugin-install-upload)
 
 推奨 update metadata:
 
@@ -57,7 +63,7 @@ automation では次の API を使えます。
 - `/data/plugins/data/<plugin-id>`
 - SQLite tables: `plugin_installs`, `plugin_capability_grants`, `plugin_settings`, `plugin_kv`, `plugin_migrations`, `plugin_update_checks`, `plugin_secrets`, `plugin_deliveries`
 
-公式 Daily Brief、Webhook、Full Content Selectors は 0.3.1 image から scan されます。サードパーティ plugin は data volume に残ります。
+公式 Daily Brief、Webhook、Full Content Selectors は 0.4.1 image から scan されます。サードパーティ plugin は data volume に残ります。
 
 ## Update と Rollback
 

@@ -1,13 +1,13 @@
 ---
 title: 每日简报官方插件
-description: 使用 Dibao 0.3.1 官方 Daily Brief 插件生成按主题分组的每日推荐简报。
+description: 使用 Dibao 0.4.1 官方 Daily Brief 插件生成按主题分组的每日推荐简报。
 ---
 
-Daily Brief 是 Dibao 随官方 Docker 镜像携带的官方插件，插件 ID 为 `app.dibao.daily-brief`，当前随 `v0.3.1` 分发的插件版本为 `0.1.1`。它每天从过去 24 小时的个性化推荐结果中挑选文章，按兴趣主题分组，生成一份可回看的每日简报。
+Daily Brief 是 Dibao 随官方 Docker 镜像携带的官方插件，插件 ID 为 `app.dibao.daily-brief`，当前随 `v0.4.1` 分发的插件版本为 `0.1.1`。它每天从过去 24 小时的个性化推荐结果中挑选文章，按兴趣主题分组，生成一份可回看的每日简报。
 
 ## 启用入口
 
-1. 升级到 Dibao `v0.3.1`。
+1. 升级到 Dibao `v0.4.1`。
 2. 打开 `设置` -> `插件`。
 3. 找到官方插件 `每日简报` / `Daily Brief`。
 4. 启用插件。启用后，主导航会出现 `每日简报` 页面，设置页会出现 `每日简报` Tab。

@@ -1,9 +1,9 @@
 ---
 title: Official Full Content Selectors Plugin
-description: Use Dibao 0.3.1 Full Content Selectors to improve web-article extraction.
+description: Use Dibao 0.4.1 Full Content Selectors to improve web-article extraction.
 ---
 
-Full Content Selectors is an official plugin bundled with Dibao starting in `0.3.0`. Its plugin ID is `app.dibao.full-content-selectors`, and `v0.3.1` updates it to `0.1.1`. It provides a selector-based full-content extractor that runs before Dibao's built-in extraction for common blog article structures.
+Full Content Selectors is an official plugin bundled with Dibao starting in `0.3.0`. Its plugin ID is `app.dibao.full-content-selectors`, and `v0.4.1` updates it to `0.1.1`. It provides a selector-based full-content extractor that runs before Dibao's built-in extraction for common blog article structures.
 
 ## When To Use It
 
@@ -17,7 +17,7 @@ Use this plugin when:
 
 ## Enable It
 
-1. Upgrade to Dibao `v0.3.1`.
+1. Upgrade to Dibao `v0.4.1`.
 2. Open `Settings` -> `Plugins`.
 3. Find the official `Full Content Selectors` plugin.
 4. Enable it. Official plugins ship with the image and do not require uploading a `.dibao-plugin` file.
@@ -47,7 +47,7 @@ When full-content extraction succeeds, Dibao updates the article's effective con
 
 - Full-content fetching only happens for feeds set to `fetch_full_content`.
 - Web requests use controlled fetch with timeouts, maximum byte limits, and redirect handling.
-- v0.3.1 allows feed discovery / refresh to access private or local network URLs for NAS, home-network, and self-hosted RSS use cases. Plugin outbound requests and full-content fetching still keep controlled-fetch protection boundaries.
+- v0.4.1 allows feed discovery / refresh to access private or local network URLs for NAS, home-network, and self-hosted RSS use cases. Plugin outbound requests and full-content fetching still keep controlled-fetch protection boundaries.
 - If a site is unfriendly to extraction, returns non-HTML, returns too little text, or fails over the network, Dibao keeps the feed content.
 
 ## Troubleshooting

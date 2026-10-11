@@ -1,29 +1,31 @@
 ---
 title: Dibao Docs
-description: Install, configure, back up, extend, and operate Dibao v0.3.1.
+description: Dibao v0.4.1 desktop and Docker installation, offline reading, plugins, backups, and developer documentation.
 ---
 
-Dibao is a self-hosted, fair-code RSS recommendation reader for people who still want to own their sources. You choose the RSS / Atom feeds; Dibao ranks, searches, and explains articles only inside those feeds.
+Dibao is a source-available / fair-code personal RSS recommendation reader. You choose RSS / Atom feeds; Dibao ranks, searches, and explains recommendations within those feeds. Reading data stays on your computer or self-hosted instance.
 
-The current recommended release is `v0.3.1`. It carries the recommendation-algorithm and mechanism update from 0.3: recommendation v3 memory, inventory status, controlled fallback behavior, optional infinite loading, the official full-content selector plugin, and stronger Docker worker and controlled-fetch boundaries.
+The recommended release is `v0.4.1`, with standalone Windows and macOS apps alongside Docker, Web, and PWA. v0.4 adds offline reading, related articles, personalized suggestions after likes, and stable pagination. v0.4.1 adds desktop background operation, updates, backup and recovery, and improved setup.
 
 ## Start Here
 
-- [Quick Install](quick-install/): run `v0.3.1` with Docker Compose, create the owner login, and import OPML or add your first RSS / Atom feed.
-- [Recommended Providers](providers/): choose Ollama, SiliconFlow, Gemini, or another OpenAI-compatible embedding provider.
-- [Backup And Upgrade](backup-upgrade/): back up `./data`, upgrade the Docker image, and verify health and recommendation inventory.
-- [Plugin Installation](plugins/installation/): install third-party `.dibao-plugin` files and review source, signature, and capabilities before enabling them.
-- [Official Daily Brief Plugin](plugins/daily-brief/): generate a topic-grouped daily digest from personalized recommendations in the past 24 hours.
-- [Official Webhook Plugin](plugins/webhook/): deliver article, refresh, ranking, and Daily Brief events to external HTTP endpoints.
-- [Official Full Content Selectors Plugin](plugins/full-content/): enable 0.3 full-content fetching and selector-based extraction.
-- [License FAQ](license/): understand BUSL-1.1, fair-code use, Change Dates, and commercial boundaries.
+- [Quick Installation](/en/quick-install/): choose Desktop or run v0.4.1 with Docker Compose.
+- [Desktop](/en/desktop-install/): three installers, tray operation, updates, data folders, and recovery.
+- [Offline Reading](/en/offline-reading/): prepare Web / PWA caches, switch modes, and sync actions.
+- [Reading And Related Articles](/en/reading/): related search, next-read suggestions, and article states.
+- [Providers](/en/providers/): optionally connect local Ollama or an external embedding service.
+- [Backup And Upgrades](/en/backup-upgrade/): preserve complete data and verify upgrade completion.
+- [Plugin Installation](/en/plugins/installation/): enable official plugins or install trusted third-party ones.
+- [Daily Brief](/en/plugins/daily-brief/), [Webhook](/en/plugins/webhook/), and [Full Content Selectors](/en/plugins/full-content/): bundled with official Desktop and Docker distributions, without package uploads.
+- [Release Notes](/en/release-notes/): v0.4.1, v0.4.0, and older releases.
+- [License FAQ](/en/license/): BUSL-1.1, Change Date, and commercial licensing.
 
-## Where Dibao Runs
+## Choose A Deployment
 
-Dibao fits Mac minis, NAS boxes, home servers, VPS instances, or any host that can keep Docker running. It can stay on your LAN or private VPN; it does not need to be public on the internet.
+Desktop runs directly on Windows or Mac without deploying a server. Docker suits a NAS, home server, or VPS accessed through Web / PWA. A LAN or private VPN is sufficient; offline PWA startup requires a secure context.
 
-Dibao does not provide multi-user teams, official hosting, social following, comments, recommendations outside your subscriptions, cloud sync, or offline full-article archives. Full-content fetching is an explicit per-feed web-article enrichment feature, not an offline archive system.
+Desktop databases and Docker instances are independent. Cross-deployment imports, remote-instance connections, and multi-device sync are not supported. Dibao does not provide team collaboration, official hosting, social following, or recommendations outside your feeds.
 
 ## Your Data
 
-Feeds, articles, states, behavior events, recommendation profile, embedding provider configuration, recommendation v3 memory, plugin packages, and index status live in SQLite and the persistent data directory. The default Compose file maps `/data` to local `./data` so backups and migrations stay understandable.
+Feeds, articles, behavior, interest profiles, vectors, plugin data, and keys stay in your persistent data directory. Docker defaults to `./data:/data`; Desktop stores data separately from its installation. Browser offline copies are client caches, not complete backups.

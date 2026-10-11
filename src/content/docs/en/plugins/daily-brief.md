@@ -1,13 +1,13 @@
 ---
 title: Official Daily Brief Plugin
-description: Use the official Dibao 0.3.1 Daily Brief plugin to generate topic-grouped daily recommendation digests.
+description: Use the official Dibao 0.4.1 Daily Brief plugin to generate topic-grouped daily recommendation digests.
 ---
 
-Daily Brief is an official plugin bundled with Dibao Docker images. Its plugin ID is `app.dibao.daily-brief`, and the version bundled with `v0.3.1` is `0.1.1`. It selects articles from personalized recommendations in the past 24 hours, groups them by interest topic, and stores a daily digest you can revisit later.
+Daily Brief is an official plugin bundled with Dibao Docker images. Its plugin ID is `app.dibao.daily-brief`, and the version bundled with `v0.4.1` is `0.1.1`. It selects articles from personalized recommendations in the past 24 hours, groups them by interest topic, and stores a daily digest you can revisit later.
 
 ## Enable It
 
-1. Upgrade to Dibao `v0.3.1`.
+1. Upgrade to Dibao `v0.4.1`.
 2. Open `Settings` -> `Plugins`.
 3. Find the official `Daily Brief` plugin.
 4. Enable it. A `Daily Brief` page appears in the main navigation, and a `Daily Brief` settings tab appears in Settings.

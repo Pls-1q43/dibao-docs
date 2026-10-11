@@ -1,11 +1,19 @@
 ---
 title: 插件开发
-description: Dibao 0.3 插件 manifest、本地化、全文抓取器、Host API、iframe bridge、打包签名和发布检查清单。
+description: Dibao 0.4 插件 manifest、本地化、全文抓取器、Host API、iframe bridge、打包签名和发布检查清单。
 ---
 
-Last updated: 2026-08-11
+Last updated: 2026-10-11
 
-本文面向第三方插件开发者。邸报 0.3 的插件系统定位是“可信管理员安装的生态平台版”：插件可以扩展服务端任务、Hook、设置页、Web UI 和全文抓取器，但仍是可信本地代码，不承诺能安全运行任意恶意代码。
+本文面向第三方插件开发者。邸报 0.4 的插件系统定位是“可信管理员安装的生态平台版”：插件可以扩展服务端任务、Hook、设置页、Web UI 和全文抓取器，但仍是可信本地代码，不承诺能安全运行任意恶意代码。
+
+## v0.4 运行边界
+
+本页 API 以 v0.4.1 实现与 `packages/plugin-sdk` 为准；核心插件合约沿用 0.3。官方三个插件仍为 `0.1.1`，兼容上限为 `<0.5.0`。第三方插件应根据实际测试填写兼容范围，不要只改版本声明。
+
+Desktop 和 Docker 共用插件服务端合约。桌面 UI 的本机权限不向插件 iframe 开放；不要访问 `window.dibaoDesktop` 或从外部页面调用桌面更新、备份和文件权限。Web / PWA 离线缓存不提供服务端插件 API，网络投递在断网时也不可保证成功。
+
+停用插件后其资产不可访问；HTML、SVG/XML 等文档资源受 CSP 和 sandbox 限制。Bridge 的 `pluginApi.path` 只使用该插件内的路由（例如 `/state`），禁止跨插件路径、绝对 URL、路径穿越或编码绕过。UI 同时检查 `event.source === window.parent`、plugin ID 和请求 ID，再消费返回结果。
 
 ## 安全模型
 
@@ -27,7 +35,7 @@ Last updated: 2026-08-11
     "name": "Reader Tools",
     "version": "0.1.0",
     "publisher": "Example",
-    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.4.0" },
+    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.5.0" },
     "entry": { "server": "server/index.mjs", "web": "web/index.html" },
     "capabilities": ["settings:plugin", "files:plugin-data", "jobs:write"],
     "migrations": [
@@ -56,7 +64,7 @@ Last updated: 2026-08-11
 }
 ```
 
-`id` 建议使用反向域名；`dibao.maxVersion` 建议写成 `<0.4.0`，避免未来 breaking API 自动启用。
+`id` 建议使用反向域名；`dibao.maxVersion` 建议写成 `<0.5.0`，避免未来 breaking API 自动启用。
 
 ### 插件本地化
 
@@ -127,7 +135,7 @@ Beta：
 - `fullContent.extractor`
 - diagnostics / recommendation transparency 类能力
 
-Beta API 可在 0.3.x 中调整字段或语义。长期插件应把持久 schema 写成 manifest migrations，而不是只依赖 `database.defineTable`。
+Beta API 可在 0.4.x 中调整字段或语义。长期插件应把持久 schema 写成 manifest migrations，而不是只依赖 `database.defineTable`。
 
 ## 服务端入口
 
@@ -216,10 +224,12 @@ function bridge(method, payload) {
 ## CLI 流程
 
 ```sh
-npm create dibao-plugin ./my-plugin
-dibao-plugin validate ./my-plugin
-dibao-plugin pack ./my-plugin --out my-plugin.dibao-plugin
-dibao-plugin sign my-plugin.dibao-plugin \
+# Run from the Dibao source checkout after npm ci.
+npm run build -w @dibao/plugin-sdk -w @dibao/plugin-cli
+node packages/plugin-cli/dist/index.js create ./my-plugin
+node packages/plugin-cli/dist/index.js validate ./my-plugin
+node packages/plugin-cli/dist/index.js pack ./my-plugin --out my-plugin.dibao-plugin
+node packages/plugin-cli/dist/index.js sign my-plugin.dibao-plugin \
   --private-key private.pem \
   --public-key public.pem \
   --key-id my-key \
@@ -240,7 +250,7 @@ dibao-plugin sign my-plugin.dibao-plugin \
 - `/data/plugins/data/<plugin-id>`
 - SQLite 表：`plugin_installs`、`plugin_capability_grants`、`plugin_settings`、`plugin_kv`、`plugin_migrations`、`plugin_update_checks`、`plugin_secrets`、`plugin_deliveries`
 
-官方 Daily Brief、Webhook 和 Full Content Selectors 插件随 0.3.1 镜像扫描；第三方插件保留在数据卷中。
+官方 Daily Brief、Webhook 和 Full Content Selectors 插件随 0.4.1 镜像扫描；第三方插件保留在数据卷中。
 
 ## 更新与回滚
 

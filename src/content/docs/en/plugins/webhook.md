@@ -1,15 +1,15 @@
 ---
 title: Official Webhook Plugin
-description: Use the official Dibao 0.3.1 Webhook plugin to deliver article, ranking, refresh, and Daily Brief events to external HTTP endpoints.
+description: Use the official Dibao 0.4.1 Webhook plugin to deliver article, ranking, refresh, and Daily Brief events to external HTTP endpoints.
 ---
 
-Webhook is an official plugin introduced in Dibao `0.2.0` and bundled with Dibao `0.3.1` Docker images. The bundled plugin version is `0.1.1`. Its plugin ID is `app.dibao.webhook`. It listens to Dibao events, renders a URL, query, body, and headers from your rule, then delivers an HTTP request to an external endpoint.
+Webhook is an official plugin introduced in Dibao `0.2.0` and bundled with Dibao `0.4.1` Docker images. The bundled plugin version is `0.1.1`. Its plugin ID is `app.dibao.webhook`. It listens to Dibao events, renders a URL, query, body, and headers from your rule, then delivers an HTTP request to an external endpoint.
 
 Use Webhook to connect Dibao to n8n, Make, Zapier, your own scripts, chat bots, monitoring systems, or archive services. It does not create a public Dibao endpoint. If your Dibao instance normally stays on a LAN or private VPN, you do not need to expose Dibao to the internet just to use outgoing webhooks.
 
 ## Enable The Plugin
 
-1. Upgrade to Dibao `0.3.1`.
+1. Upgrade to Dibao `0.4.1`.
 2. Open `Settings` and go to the `Plugins` tab.
 3. Find the official `Webhook` plugin.
 4. Enable it. A `Webhook` settings tab will appear.

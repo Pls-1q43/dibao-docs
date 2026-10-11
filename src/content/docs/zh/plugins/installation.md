@@ -1,22 +1,28 @@
 ---
 title: 插件安装
-description: 安装、更新、签名验证和持久化 Dibao 0.3 第三方插件。
+description: 安装、更新、签名验证和持久化 Dibao 0.4 第三方插件。
 ---
 
-Last updated: 2026-08-11
+Last updated: 2026-10-11
 
-本文面向安装第三方插件的邸报管理员。0.3 插件会在独立 Node host 进程中运行，并使用 sandboxed iframe 展示 Web UI；但第三方服务端插件仍是可信本地代码，不是任意恶意代码沙箱。只安装你信任的来源。
+本文面向安装第三方插件的邸报管理员。0.4 插件会在独立 Node host 进程中运行，并使用 sandboxed iframe 展示 Web UI；但第三方服务端插件仍是可信本地代码，不是任意恶意代码沙箱。只安装你信任的来源。
+
+## v0.4.1 兼容与桌面版
+
+Daily Brief、Webhook 和 Full Content Selectors 的内置版本仍为 `0.1.1`，兼容上限现为 `<0.5.0`，随官方桌面版和 Docker 分发。旧第三方插件若声明 `<0.4.0`，升级后会显示 `incompatible`；需由作者验证后发布兼容版本。
+
+桌面备份包含插件包、数据和密钥。不要只拷贝 `.dibao-plugin` 当作数据备份。网页 / PWA 离线缓存不运行插件服务端接口；桌面断网后出站请求和 Webhook 投递仍依赖网络。
 
 ## 官方插件与第三方插件
 
-Dibao 0.3.1 随官方 Docker 镜像携带 [Daily Brief](/zh/plugins/daily-brief/)、[Webhook](/zh/plugins/webhook/) 和 [Full Content Selectors](/zh/plugins/full-content/)。官方插件不需要上传 .dibao-plugin，也不能像第三方插件一样卸载；打开设置页的 插件 Tab，找到官方插件并启用即可。本页后续安装步骤只适用于第三方插件。
+Dibao 0.4.1 随官方 Docker 镜像携带 [Daily Brief](/zh/plugins/daily-brief/)、[Webhook](/zh/plugins/webhook/) 和 [Full Content Selectors](/zh/plugins/full-content/)。官方插件不需要上传 .dibao-plugin，也不能像第三方插件一样卸载；打开设置页的 插件 Tab，找到官方插件并启用即可。本页后续安装步骤只适用于第三方插件。
 
 ## 安装前检查
 
 - 来源：开发者、发布页、版本号和更新记录是否可信。
 - 签名：优先安装已签名包，并确认 keyId 对应的公钥已加入 trusted keys。
 - capabilities：确认插件请求的能力与功能相符。
-- API 稳定层级：Stable API 适合长期依赖；Beta API 可能在 0.3.x 调整。
+- API 稳定层级：Stable API 适合长期依赖；Beta API 可能在 0.4.x 调整。
 - 服务端代码风险：插件启用后会执行 server entry。
 
 ## 推荐方式：上传 `.dibao-plugin`
@@ -35,8 +41,8 @@ Dibao 0.3.1 随官方 Docker 镜像携带 [Daily Brief](/zh/plugins/daily-brief/
 
 自动化部署可调用：
 
-- [`POST /api/plugins/install`](./api-contract.md#post-apipluginsinstall)
-- [`POST /api/plugins/install/upload`](./api-contract.md#post-apipluginsinstallupload)
+- [`POST /api/plugins/install`](/zh/reference/#plugin-install)
+- [`POST /api/plugins/install/upload`](/zh/reference/#plugin-install-upload)
 
 URL metadata 建议包含：
 
@@ -57,7 +63,7 @@ URL metadata 建议包含：
 - `/data/plugins/data/<plugin-id>`
 - SQLite 表：`plugin_installs`、`plugin_capability_grants`、`plugin_settings`、`plugin_kv`、`plugin_migrations`、`plugin_update_checks`、`plugin_secrets`、`plugin_deliveries`
 
-官方 Daily Brief、Webhook 和 Full Content Selectors 随 0.3.1 镜像扫描；第三方插件保存在数据卷中。
+官方 Daily Brief、Webhook 和 Full Content Selectors 随 0.4.1 镜像扫描；第三方插件保存在数据卷中。
 
 ## 更新和回滚
 

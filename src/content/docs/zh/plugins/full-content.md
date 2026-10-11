@@ -1,9 +1,9 @@
 ---
 title: 全文选择器官方插件
-description: 使用 Dibao 0.3.1 的 Full Content Selectors 官方插件改善网页全文抓取。
+description: 使用 Dibao 0.4.1 的 Full Content Selectors 官方插件改善网页全文抓取。
 ---
 
-Full Content Selectors 是 Dibao `0.3.0` 开始随官方 Docker 镜像携带的官方插件，插件 ID 为 `app.dibao.full-content-selectors`，当前随 `v0.3.1` 更新到 `0.1.1`。它提供 selector-based 的全文抓取器，在内置全文提取前优先尝试更适合常见博客正文结构的选择器。
+Full Content Selectors 是 Dibao `0.3.0` 开始随官方 Docker 镜像携带的官方插件，插件 ID 为 `app.dibao.full-content-selectors`，当前随 `v0.4.1` 更新到 `0.1.1`。它提供 selector-based 的全文抓取器，在内置全文提取前优先尝试更适合常见博客正文结构的选择器。
 
 ## 适用场景
 
@@ -17,7 +17,7 @@ Full Content Selectors 是 Dibao `0.3.0` 开始随官方 Docker 镜像携带的�
 
 ## 启用步骤
 
-1. 升级到 Dibao `v0.3.1`。
+1. 升级到 Dibao `v0.4.1`。
 2. 打开 `设置` -> `插件`。
 3. 找到官方插件 `全文选择器` / `Full Content Selectors`。
 4. 启用插件。官方插件随镜像分发，不需要上传 `.dibao-plugin`。
@@ -47,7 +47,7 @@ Full Content Selectors 是 Dibao `0.3.0` 开始随官方 Docker 镜像携带的�
 
 - Feed 的全文抓取只在 `fetch_full_content` 模式下发生。
 - 网页请求走受控 fetch，有超时、最大字节数和重定向处理。
-- v0.3.1 允许 feed discovery / refresh 访问私有或内网地址，以支持 NAS、家庭网络和自建 RSS；插件出站请求和全文抓取仍保留独立的受控 fetch 边界。
+- v0.4.1 允许 feed discovery / refresh 访问私有或内网地址，以支持 NAS、家庭网络和自建 RSS；插件出站请求和全文抓取仍保留独立的受控 fetch 边界。
 - 如果站点对抓取不友好、返回非 HTML、正文太短或网络失败，Dibao 会保留 Feed 内容。
 
 ## 排查问题

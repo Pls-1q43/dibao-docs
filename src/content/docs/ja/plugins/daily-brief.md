@@ -1,13 +1,13 @@
 ---
 title: 公式 Daily Brief プラグイン
-description: Dibao 0.3.1 の公式 Daily Brief plugin で topic ごとの daily recommendation digest を生成する。
+description: Dibao 0.4.1 の公式 Daily Brief plugin で topic ごとの daily recommendation digest を生成する。
 ---
 
-Daily Brief は Dibao の公式 Docker image に同梱される公式 plugin です。plugin ID は `app.dibao.daily-brief` で、`v0.3.1` に同梱される version は `0.1.1` です。過去 24 時間の personalized recommendations から記事を選び、興味 topic ごとにまとめた daily digest を保存します。
+Daily Brief は Dibao の公式 Docker image に同梱される公式 plugin です。plugin ID は `app.dibao.daily-brief` で、`v0.4.1` に同梱される version は `0.1.1` です。過去 24 時間の personalized recommendations から記事を選び、興味 topic ごとにまとめた daily digest を保存します。
 
 ## 有効化手順
 
-1. Dibao `v0.3.1` に upgrade します。
+1. Dibao `v0.4.1` に upgrade します。
 2. `Settings` -> `Plugins` を開きます。
 3. 公式 `Daily Brief` plugin を探します。
 4. 有効化します。main navigation に `Daily Brief` page が追加され、Settings に `Daily Brief` tab が表示されます。

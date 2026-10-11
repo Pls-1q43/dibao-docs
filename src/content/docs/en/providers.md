@@ -5,6 +5,8 @@ description: Choose Ollama, SiliconFlow, Gemini, or an OpenAI-compatible embeddi
 
 Dibao works without an AI provider, but embeddings make recommendations more personal. Choose based on where you run Dibao.
 
+Desktop with Ollama on the same computer uses `http://127.0.0.1:11434`; Docker Desktop generally reaches the host at `http://host.docker.internal:11434`. Install models separately; the desktop installer does not bundle them.
+
 ## Choose By Host
 
 | Deployment | Recommendation |
@@ -33,8 +35,8 @@ ollama pull bge-m3
 
 | Provider | Settings |
 | --- | --- |
-| [SiliconFlow](https://cloud.siliconflow.cn/i/4wjbYmMH) | Recommended model: `BAAI/bge-m3`. It is free, has no daily quota, and is rate-limited by RPM / TPM. Current L0 limits are 2,000 RPM and 500,000 TPM.<br>Type: `OpenAI-compatible`<br>Base URL: `https://api.siliconflow.cn/v1`<br>Model: `BAAI/bge-m3`<br>Dimension: `1024` |
-| Gemini | Gemini embedding is also free and works well for a small personal RSS setup. Plan around the free tier's roughly 1,000 requests per day.<br>Type: `OpenAI-compatible`<br>Base URL: `https://generativelanguage.googleapis.com/v1beta/openai/`<br>Model: `gemini-embedding-001`<br>Dimension: `768` |
+| [SiliconFlow](https://cloud.siliconflow.cn/i/4wjbYmMH) | Supports OpenAI-compatible embeddings; `BAAI/bge-m3` is an example. Check currently available models and account quotas.<br>Type: `OpenAI-compatible`<br>Base URL: `https://api.siliconflow.cn/v1`<br>Model: `BAAI/bge-m3`<br>Dimension: `1024` |
+| Gemini | Use the Gemini API's OpenAI-compatible embedding endpoint. Pricing, free-tier access, and rate limits depend on the current account.<br>Type: `OpenAI-compatible`<br>Base URL: `https://generativelanguage.googleapis.com/v1beta/openai/`<br>Model: `gemini-embedding-001`<br>Dimension: `768` |
 
 Free tiers, pricing, rate limits, and regional availability can change. Check provider pages before heavy use.
 
@@ -43,3 +45,5 @@ Free tiers, pricing, rate limits, and regional availability can change. Check pr
 Go to `Settings` -> `Recommended Provider`, choose the provider type, fill in Base URL, Model, Dimension, and API Key, then test the connection before setting it as current.
 
 Changing model or dimension requires regenerating embeddings. Dibao keeps reading data, but vectors from different models cannot be mixed. If the provider is unavailable, reading still works and recommendations fall back to baseline ranking.
+
+Current API references: [SiliconFlow Embeddings](https://siliconflow.readme.io/reference/createembedding), [Gemini OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai), and [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing).

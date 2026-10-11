@@ -1,34 +1,34 @@
 ---
 title: 备份与升级
-description: 备份 Dibao 数据目录并升级到 v0.3.1。
+description: 备份 Dibao v0.4.1 桌面或 Docker 数据，完成升级、验证迁移并安全恢复。
 ---
 
-默认 Compose 配置把容器 `/data` 映射到当前目录的 `./data`：
+当前推荐版本为 `v0.4.1`。升级前先同步每个网页 / PWA 客户端的离线操作；服务器备份不包含尚未同步到服务器的操作。
 
-```text
-./data:/data
-./data/dibao.sqlite
-```
+## 桌面版
 
-升级、迁移或尝试新插件前，建议备份整个 `./data` 目录，而不是只复制 SQLite 文件，因为插件包、插件数据和后续文件型状态也会放在该目录下。
+通过“设置 → 关于 → 数据备份与恢复”创建完整备份或选择恢复点，确认后重启执行。恢复前会另存当前数据，但恢复点之后的更改会回退。
 
-## 备份
+Windows 在确认下载后选择“重启并更新”；macOS 完全退出后用新 DMG 覆盖应用。新版本会在迁移前备份，失败时停止。自动升级备份保留最近三份成功记录，手动备份和恢复前快照不自动删除。
+
+外部备份请在完全退出后复制整个数据根目录，包含 `data`、`profile`、`backups` 和插件密钥。路径与详细操作见 [桌面版](/zh/desktop-install/)。
+
+## Docker 完整备份
+
+默认挂载为 `./data:/data`，数据库为 `/data/dibao.sqlite`。备份整个数据目录，而不是只复制主 SQLite 文件。命名 volume 或其他挂载路径请按实际配置备份。
 
 ```bash
 docker compose stop
-tar czf dibao-data-backup.tgz -C data .
-docker compose up -d
+tar czf "dibao-data-before-v0.4.1-$(date +%Y%m%d-%H%M%S).tgz" -C data .
 ```
 
-## 升级到 v0.3.1
-
-把 `compose.yaml` 中的镜像改为：
+保存备份后，将 `compose.yaml` 镜像改为：
 
 ```yaml
-image: ghcr.io/pls-1q43/dibao:v0.3.1
+image: ghcr.io/pls-1q43/dibao:v0.4.1
 ```
 
-然后运行：
+保留数据卷和环境变量，然后执行：
 
 ```bash
 docker compose pull
@@ -36,30 +36,28 @@ docker compose up -d
 docker compose ps
 ```
 
-升级后打开：
+## 验证升级完成
 
-```text
-http://localhost:8080/api/system/health
-```
+1. 打开 `http://localhost:8080/api/system/health`，确认响应里的 `data.ok: true` 与 `data.version: "0.4.1"`。
+2. 登录后访问 `/api/system/upgrade/status`，确认最终为 `completed` 或 `not_required`，且 `data.blocking: false`。
+3. 确认升级页面退出，可以正常阅读并执行操作。
 
-返回 `ok: true` 和 `version: "0.3.1"` 表示基础健康检查通过。进入推荐页后，如果推荐库存状态提示显示正在排序，可以等待后台任务补充排序库存。
+健康接口成功只表示基础服务正常，不证明数据升级已完成。
 
 ## 版本迁移影响
 
-- 从 `v0.3.0` 到 `v0.3.1`：没有新增 core SQLite migration，不需要重新计算 embeddings；官方 Daily Brief、Webhook、Full Content Selectors 插件会随镜像更新到 `0.1.1`。
-- 从 `v0.2.1` 直接到 `v0.3.1`：会新增 `026_recommendation_v3_memory.sql`，创建 `user_representation_snapshots`、`recommendation_exposures`、`exploration_attempts`，并给 `article_rank_scores` 增加探索相关字段。
-- 本次 0.3 升级不会要求重新计算 embeddings；新的推荐记忆和曝光数据会在升级后随使用逐步积累。
+| 升级路径 | 影响 |
+| --- | --- |
+| v0.4.0 → v0.4.1 | 没有新增 core SQL migration 或强制派生重建，不重算 embeddings。 |
+| v0.3.1 → v0.4.1 | 自动补齐 `027_recommendation_sessions.sql`，建立稳定推荐会话表，并按需要执行推荐数据升级。 |
+| 更早版本 → v0.4.1 | 先应用此前所有未执行的历史迁移，再执行需要的数据升级。 |
+
+需要升级推荐数据的现有库会自动进入阻塞式升级页，重放行为、重建画像和派生数据、重算符合条件的推荐，成功后清理旧上下文并恢复普通功能。耗时取决于数据和设备；失败可以在页面重试，不要删除升级标记绕过。
+
+v0.4 数据升级复用已有向量，不为历史文章重新调用 embedding 服务。新增文章仍按当前 Provider 设置生成向量。
 
 ## 回滚
 
-如果需要回滚到备份：
+先停止新版本，保留失败现场，然后在干净目录或新 volume 恢复升级前完整备份，再使用对应旧镜像和原挂载启动。不要让旧版直接读取新版数据库，也不要把备份覆盖到仍有新 WAL 文件的目录。
 
-```bash
-docker compose stop
-mv data data.failed
-mkdir data
-tar xzf dibao-data-backup.tgz -C data
-docker compose up -d
-```
-
-不要直接用已迁移到 0.3.x 的数据库启动更旧版本。回滚时应先恢复升级前备份，再启动上一版镜像。
+桌面版同样需先恢复对应旧数据，不能只换旧应用。恢复会失去备份之后的更改；插件包、数据和密钥应一起恢复。

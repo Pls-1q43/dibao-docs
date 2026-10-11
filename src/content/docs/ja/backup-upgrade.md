@@ -1,34 +1,34 @@
 ---
-title: バックアップとアップグレード
-description: Dibao data をバックアップし、v0.3.1 へアップグレードする。
+title: バックアップと更新
+description: Dibao v0.4.1 の Desktop・Docker データ保存、移行確認と安全な復元。
 ---
 
-既定の Compose は container `/data` を local `./data` に map します。
+現在の推奨版は `v0.4.1` です。更新前にすべての Web／PWA クライアントの未同期操作を送信します。サーバーの保存には未送信操作を含みません。
 
-```text
-./data:/data
-./data/dibao.sqlite
-```
+## Desktop
 
-upgrade、migration、新しい plugin の試用前には、SQLite file だけでなく `./data` directory 全体を backup してください。plugin package、plugin data、将来の file-backed state もここに保存されます。
+設定の「バックアップと復元」で完全保存または日時による復元を選び、確認後に再起動します。復元前に現在のデータも別保存しますが、復元日以降の変更は戻ります。
 
-## Backup
+Windows はダウンロード確認後に再起動・更新を選びます。macOS は完全終了後に新 DMG でアプリを上書きします。新版は移行前に保存し、失敗時は停止します。成功した更新前保存を直近三件保持し、手動保存と復元前スナップショットは自動削除しません。
+
+別媒体への保存は完全終了後に `data`、`profile`、`backups` とプラグインの鍵を含むルート全体をコピーします。場所と手順は [デスクトップ版](/ja/desktop-install/) を参照してください。
+
+## Docker の完全保存
+
+既定のマウントは `./data:/data`、DB は `/data/dibao.sqlite` です。SQLite 本体だけではなくディレクトリー全体を保存します。名前付き volume や別パスの場合は設定に合わせてください。
 
 ```bash
 docker compose stop
-tar czf dibao-data-backup.tgz -C data .
-docker compose up -d
+tar czf "dibao-data-before-v0.4.1-$(date +%Y%m%d-%H%M%S).tgz" -C data .
 ```
 
-## v0.3.1 へアップグレード
-
-`compose.yaml` の image を次に変更します。
+保存後、`compose.yaml` の image を変更します。
 
 ```yaml
-image: ghcr.io/pls-1q43/dibao:v0.3.1
+image: ghcr.io/pls-1q43/dibao:v0.4.1
 ```
 
-そして実行します。
+volume と環境変数を保ち、実行します。
 
 ```bash
 docker compose pull
@@ -36,28 +36,28 @@ docker compose up -d
 docker compose ps
 ```
 
-upgrade 後、次を開きます。
+## 更新完了の確認
 
-```text
-http://localhost:8080/api/system/health
-```
+1. `http://localhost:8080/api/system/health` の応答で `data.ok: true` と `data.version: "0.4.1"` を確認します。
+2. ログイン後、`/api/system/upgrade/status` が最終的に `completed` または `not_required`、`data.blocking: false` になるまで確認します。
+3. 更新画面が終了し、読書と操作ができることを確認します。
 
-response に `ok: true` と `version: "0.3.1"` が含まれていれば基本確認は通っています。推薦在庫ステータスが sorting in progress を示す場合は、background job が排序済み在庫を補充するまで待ってください。
+health 成功は基本動作だけを示し、データ更新完了を保証しません。
 
-## Migration 影響
+## 移行の影響
 
-- `v0.3.0` から `v0.3.1`: 新しい core SQLite migration はなく、embedding recomputation も不要です。内蔵 Daily Brief、Webhook、Full Content Selectors plugin は `0.1.1` に更新されます。
-- `v0.2.1` から `v0.3.1` へ直接 upgrade: `026_recommendation_v3_memory.sql` が追加され、`user_representation_snapshots`、`recommendation_exposures`、`exploration_attempts` と `article_rank_scores` の探索関連 fields が作られます。
-- 0.3 upgrade では embedding recomputation は不要です。新しい recommendation memory と exposure data は upgrade 後に蓄積されます。
+| 更新経路 | 影響 |
+| --- | --- |
+| v0.4.0 → v0.4.1 | 新 core SQL 移行や強制派生再構築はなく、Embedding も再計算しません。 |
+| v0.3.1 → v0.4.1 | `027_recommendation_sessions.sql` で安定ページ送り用テーブルを作り、必要な推薦データ更新を実施します。 |
+| さらに古い版 → v0.4.1 | 未適用の歴史的移行をすべて実行し、必要なデータ更新を行います。 |
 
-## Restore
+必要な既存 DB は自動的に通常操作を止める更新画面へ入り、行動再生、プロフィールと派生データの再構築、対象記事の順位付けを行います。成功後に旧コンテキストを削除します。時間はデータと機器によって変わり、失敗時は画面から再試行できます。更新マーカーを削除して迂回しないでください。
 
-```bash
-docker compose stop
-mv data data.failed
-mkdir data
-tar xzf dibao-data-backup.tgz -C data
-docker compose up -d
-```
+v0.4 の更新は既存ベクトルを再利用し、過去記事のために Embedding サービスを呼びません。新規記事は現在の Provider 設定に従います。
 
-0.3.x に migration 済みの database を旧 version で直接起動しないでください。まず upgrade 前 backup を restore し、その後に前 version の image を起動してください。
+## 旧版への復帰
+
+新版を停止して失敗状態を保ち、空ディレクトリーまたは新 volume に完全な更新前保存を復元します。それに対応する旧イメージを元のマウントで起動します。旧版で新版データを開いたり、新しい WAL に保存を重ねたりしないでください。
+
+Desktop も旧データの復元が必要で、アプリ差し替えだけでは戻せません。保存後の変更は失われます。プラグインパッケージ、データ、鍵をまとめて復元してください。

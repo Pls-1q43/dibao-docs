@@ -1,11 +1,19 @@
 ---
 title: プラグイン開発
-description: Dibao 0.3 plugin manifest、localization、full-content extractor、Host API、iframe bridge、packaging、signing、release checklist。
+description: Dibao 0.4 plugin manifest、localization、full-content extractor、Host API、iframe bridge、packaging、signing、release checklist。
 ---
 
-Last updated: 2026-08-11
+Last updated: 2026-10-11
 
-この文書はサードパーティ開発者向けです。Dibao 0.3 のプラグイン system は「管理者が信頼してインストールするエコシステム版」です。プラグインは server task、hook、settings page、Web UI、full-content extractor を拡張できますが、信頼済みローカルコードとして扱われます。任意の悪意あるコードを安全に実行できる sandbox ではありません。
+この文書はサードパーティ開発者向けです。Dibao 0.4 のプラグイン system は「管理者が信頼してインストールするエコシステム版」です。プラグインは server task、hook、settings page、Web UI、full-content extractor を拡張できますが、信頼済みローカルコードとして扱われます。任意の悪意あるコードを安全に実行できる sandbox ではありません。
+
+## v0.4 の実行境界
+
+本ページは v0.4.1 の実装と `packages/plugin-sdk` に準拠し、基本合約は 0.3 から継続します。三種類の公式プラグインは `0.1.1`、互換上限は `<0.5.0` です。外部プラグインの範囲は宣言変更だけでなく、検証に基づいて設定してください。
+
+Desktop と Docker はサーバープラグイン合約を共有します。Desktop 権限は iframe に公開しません。`window.dibaoDesktop` や外部ページから更新、保存、ファイル権限を呼び出さないでください。Web／PWA のキャッシュはサーバー API を提供せず、切断中の外部配信も保証しません。
+
+無効なプラグインの資産は提供されません。HTML、SVG/XML などの文書は CSP と sandbox で保護します。`pluginApi.path` は `/state` など自プラグイン内のパスだけを使い、他プラグイン、絶対 URL、トラバーサルや符号化迂回を避けます。応答を使う前に `event.source === window.parent`、プラグイン ID と要求 ID を確認してください。
 
 ## セキュリティモデル
 
@@ -27,7 +35,7 @@ Last updated: 2026-08-11
     "name": "Reader Tools",
     "version": "0.1.0",
     "publisher": "Example",
-    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.4.0" },
+    "dibao": { "minVersion": "0.3.0", "maxVersion": "<0.5.0" },
     "entry": { "server": "server/index.mjs", "web": "web/index.html" },
     "capabilities": ["settings:plugin", "files:plugin-data", "jobs:write"],
     "migrations": [
@@ -47,7 +55,7 @@ Last updated: 2026-08-11
 }
 ```
 
-`id` は reverse-domain 形式を推奨します。互換範囲は `<0.4.0` のように上限を明示してください。
+`id` は reverse-domain 形式を推奨します。互換範囲は `<0.5.0` のように上限を明示してください。
 
 ### プラグインのローカライズ
 
@@ -118,7 +126,7 @@ Beta:
 - `fullContent.extractor`
 - diagnostics / recommendation transparency APIs
 
-Beta API は 0.3.x 中に field や semantics が変わる可能性があります。長期運用する plugin は durable schema を manifest migrations で管理してください。
+Beta API は 0.4.x 中に field や semantics が変わる可能性があります。長期運用する plugin は durable schema を manifest migrations で管理してください。
 
 ## Server Entry
 
@@ -204,9 +212,9 @@ host は iframe source、`pluginId`、`requestId` を検証します。
 
 ```sh
 dibao-plugin create ./my-plugin
-dibao-plugin validate ./my-plugin
-dibao-plugin pack ./my-plugin --out my-plugin.dibao-plugin
-dibao-plugin sign my-plugin.dibao-plugin \
+node packages/plugin-cli/dist/index.js validate ./my-plugin
+node packages/plugin-cli/dist/index.js pack ./my-plugin --out my-plugin.dibao-plugin
+node packages/plugin-cli/dist/index.js sign my-plugin.dibao-plugin \
   --private-key private.pem \
   --public-key public.pem \
   --key-id my-key \
@@ -227,7 +235,7 @@ Dibao は Ed25519 signature を使います。signature は manifest、files、u
 - `/data/plugins/data/<plugin-id>`
 - SQLite tables: `plugin_installs`, `plugin_capability_grants`, `plugin_settings`, `plugin_kv`, `plugin_migrations`, `plugin_update_checks`, `plugin_secrets`, `plugin_deliveries`
 
-公式 Daily Brief、Webhook、Full Content Selectors は 0.3.1 image bundled plugin として scan されます。サードパーティ plugin は data volume に残ります。
+公式 Daily Brief、Webhook、Full Content Selectors は 0.4.1 image bundled plugin として scan されます。サードパーティ plugin は data volume に残ります。
 
 ## Update と Rollback
 

@@ -1,38 +1,54 @@
 ---
 title: 开发者文档
-description: Dibao 0.3 开发者入口、仓库结构与公开合约。
+description: Dibao v0.4.1 核心、桌面、离线阅读、API、数据迁移与插件开发入口。
 ---
 
-开发者文档从 `0.2.0` 开始作为公开参考维护。当前主线是 `0.3.x`，覆盖仓库结构、API、数据库 schema、推荐算法、插件系统、全文抓取、运行时性能和发布流程。
+当前公开版本是 `v0.4.1`，对应主项目 `main` 的完整发布状态。开发时根据仓库实时版本线和发布规则选择分支；旧指南中的 0.2 / 0.3 分支说明不能当作当前发布状态。
 
 ## 仓库结构
 
-- `apps/web`：前端 Web App、PWA、设置页、Feed 管理、全文预览和插件 iframe 宿主。
-- `apps/server`：API、RSS 抓取、全文抓取、后台任务、推荐维护、插件宿主和认证。
-- `packages/db`：数据库类型、迁移和 shared data contracts。
-- `packages/plugin-sdk`：插件 manifest、能力、事件、签名和 package 校验工具。
-- `packages/plugin-cli`：第三方插件模板、校验、打包和签名命令。
-- `plugins/official`：随镜像分发的官方插件：Daily Brief、Webhook、Full Content Selectors。
-- `docs`：公开产品、工程和开发者参考文档。
+- `apps/desktop`：Electron 主进程与 preload、本地运行时、更新、备份和恢复。
+- `apps/web`：React 阅读器、设置、PWA、离线缓存和插件 iframe 宿主。
+- `apps/server`：Fastify API、认证、抓取、独立 worker、推荐和插件运行时。
+- `packages/db`：SQLite repository、迁移和向量存储。
+- `packages/ranking`：兴趣画像和推荐排序。
+- `packages/plugin-sdk` / `packages/plugin-cli`：manifest、能力、校验、打包和签名。
+- `plugins/official`：Daily Brief、Webhook、Full Content Selectors。
 
-本地计划、执行记录、临时验证证据和机器特定说明不属于公开 docs，应保留在仓库外或被忽略的本地目录。
+## 本地开发与验证
 
-## 当前 0.3 重点
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+git diff --check
+```
 
-- 推荐 v3 memory：`user_representation_snapshots`、`recommendation_exposures`、`exploration_attempts`。
-- 推荐列表更严格使用 active rank context，并限制 fallback 批次，减少未排序内容突然涌入。
-- 前台交互路径避免同步重排序、重型诊断和大范围写入，后台 worker 分块处理排序、embedding、feed refresh 和插件任务。
-- Feed 支持 `feed_only` / `fetch_full_content` 模式，全文抓取只在显式启用时请求文章网页。
-- 插件 manifest 支持本地化字符串，iframe/bridge 可感知当前 locale，插件系统新增 Beta 的 full-content extractor 扩展点。
+开发服务用 `npm run dev:server` 和 `npm run dev:web`。桌面构建用 `npm run build:desktop`，打包用 `npm run desktop:package`，运行时 smoke 用 `npm run desktop:smoke`。本地打包成功不代替各系统实际安装与升级验收。
 
-## 公开合约
+## v0.4 核心合约
 
-- API 路由与请求/响应结构按 API contract 演进。
-- 数据库结构按 schema migration 和 database schema 文档演进。
-- 插件 manifest、capability、Hook、UI slot、full-content extractor 和 iframe bridge 需要保持文档化。
-- 插件 Stable/Beta API、签名 trusted key、持久化路径和官方插件清单需要随 `0.3` 实现同步。
-- 推荐算法文档用于解释产品行为，不应被 UI 文案夸大为未实现的能力。
+- 推荐会话固定当前分页序列；`027_recommendation_sessions.sql` 保存会话、位置和分数快照。
+- 相关文章和点赞后的个性化发现是已有向量的读取路径，不得在打开阅读器时触发向量生成或全库重排。
+- Web / PWA 缓存按来源与用户隔离；离线动作使用 `clientActionId` 幂等处理，先同步动作再更新快照。
+- 文章打开、动作和滚动是延迟敏感路径；画像、排序、embedding 和重型诊断进入后台或显式冷路径。
+- Desktop 用本机数据库，不将断网阅读降为 PWA 子集。结束前保存阅读进度、停止后台任务和插件进程，再关闭数据库。
 
-## 兼容性
+## 数据升级与发布
 
-正式 release 和 hotfix 镜像必须使用明确版本号发布；用户安装文档也应使用当前推荐版本号。跨版本升级需要保护 SQLite 迁移、持久化目录、插件数据和 embedding 成本边界。0.3 升级不会隐式要求重新计算 embeddings。
+已发布 migration 不得删除或改写。core migration 使用应用内用户可见的阻塞升级入口；需要重建推荐派生数据时继续显示进度，成功后再恢复业务并清理旧上下文。
+
+v0.4.0 增加推荐会话 migration，派生升级复用已有 embeddings。v0.4.1 不新增 SQL migration 或强制重建。涉及额外 embedding 成本的重算必须让用户明确决定。
+
+正式发布提供同一提交版本的 Windows x64 EXE、Intel / Apple Silicon DMG 和 Docker amd64 / arm64 镜像。验收需包含安装、旧版升级、备份恢复和平台权限边界；当前桌面包未签名，Mac 手动替换应用。
+
+## 插件与接口
+
+[插件开发](/zh/plugins/development/) 包含 Stable / Beta 合约、兼容范围、iframe bridge、全文抓取器、签名与 CLI。[API 与数据库参考](/zh/reference/) 列出当前新增接口和持久化边界。
+
+前端隔离不代表恶意服务端代码沙箱。桌面本机权限只通过受控应用入口使用，不能由插件或外部页面取得。
+
+## 实现依据
+
+以当前实现为准：`apps/server/src/app.ts`、`reader-discovery-service.ts`、`apps/web/src/api.ts`、`packages/db/migrations`、`packages/plugin-sdk/src/index.ts` 和 `apps/desktop/src`。完整工程源码见 [v0.4.1 源码](https://github.com/Pls-1q43/Dibao/tree/v0.4.1)。
